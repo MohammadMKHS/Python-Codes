@@ -39,7 +39,7 @@ async def run_script_subprocess(script_path: str, args: list) -> Dict[str, Any]:
         sys.executable, # Use the current Python interpreter
         script_abs_path,
         *args,          # Unpack the list of arguments
-        "--json-output" # Assuming your scripts support a --json-output flag for JSON output
+        "--json" # Use the correct argument that the script supports
     ]
 
     print(f"[+] Running subprocess command: {' '.join(command)} (from ethereum_router)", file=sys.stderr)
@@ -96,7 +96,7 @@ async def analyze_ethereum_transaction_hash_endpoint(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing 'tx_hash' query parameter.")
     
     print(f"\n[+] API Request received for Ethereum transaction analysis: {tx_hash} (via ethereum_router)", file=sys.stderr)
-    return await run_script_subprocess(TRANSACTION_HASH_SCRIPT_PATH, [tx_hash])
+    return await run_script_subprocess(TRANSACTION_HASH_SCRIPT_PATH, ["--tx", tx_hash])
 
 
 @ethereum_router.get("/wallet-forensic", response_model=Dict[str, Any], summary="Perform Ethereum Wallet Forensic Analysis")

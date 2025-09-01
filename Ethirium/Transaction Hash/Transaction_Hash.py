@@ -727,6 +727,10 @@ def analyze_eth_transaction(tx_hash, output_json=False):
         output_json_data=report_data_output if output_json else None
     )
 
+    # For API usage: print JSON to stdout when --json flag is used
+    if output_json and report_data_output:
+        print(json.dumps(report_data_output, indent=2))
+
     return True
 
 def main():
