@@ -1,0 +1,579 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>XenoByte Forensic Report - 17TMc2UkVR...</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap');
+            :root {
+                --bg-color: #0a0a0a;
+                --box-color: #121212;
+                --text-color: #00f5d4; /* Your accent greenish-blue */
+                --accent: #00ff88;    /* Your bright green accent */
+                --footer-bg: #111;
+                --footer-text: #ccc;
+                --input-bg: #1e1e1e;
+                --input-border: #00f5d4;
+            }
+            body.light-theme {
+                --bg-color: #f9f9f9;
+                --box-color: #ffffff;
+                --text-color: #111;
+                --accent: #00c47a;
+                --footer-bg: #eaeaea;
+                --footer-text: #333;
+                --input-bg: #f0f0f0;
+                --input-border: #00c47a;
+            }
+            html, body {
+                min-height: 100vh;
+                margin: 0;
+                padding: 0;
+                font-family: 'Roboto', sans-serif;
+                background-color: var(--bg-color);
+                color: var(--text-color);
+                display: flex;
+                flex-direction: column;
+                transition: background-color 0.4s, color 0.4s;
+            }
+            .header {
+                text-align: center;
+                padding: 20px;
+                background-color: var(--box-color);
+                border-bottom: 2px solid var(--accent);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                z-index: 10;
+                position: sticky;
+                top: 0;
+            }
+            h1 {
+                margin: 0;
+                color: var(--text-color);
+                font-family: 'Orbitron', sans-serif;
+                font-size: 2.5em;
+                text-shadow: 0 0 8px var(--accent);
+            }
+            .subtitle {
+                color: var(--footer-text);
+                font-size: 1.1em;
+                margin-top: 5px;
+            }
+            .content-section {
+                padding: 20px;
+                width: 95%; /* Increased width */
+                margin: 20px auto;
+                background-color: var(--box-color);
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+                line-height: 1.6;
+                flex-grow: 1;
+                box-sizing: border-box;
+            }
+            @media (max-width: 768px) {
+                .content-section {
+                    width: 95%;
+                    padding: 15px;
+                }
+            }
+            .content-section h2, .content-section h3 {
+                color: var(--accent);
+                border-bottom: 1px solid var(--text-color);
+                padding-bottom: 10px;
+                margin-top: 30px;
+                margin-bottom: 20px;
+                font-family: 'Orbitron', sans-serif;
+            }
+            .content-section p, .content-section table {
+                margin-bottom: 10px;
+                color: var(--footer-text);
+            }
+            /* Adjusted ul for behavioral analysis to ensure standard indentation */
+            .content-section ul {
+                padding-left: 25px; /* Re-added standard list indentation */
+                list-style: disc;
+                margin-top: 0; /* Remove top margin from ul */
+                margin-bottom: 0; /* Remove bottom margin from ul */
+            }
+            .content-section ul li {
+                margin-bottom: 8px; /* Standard spacing between list items */
+                padding-top: 2px; /* Small padding for visual separation */
+                padding-bottom: 2px;
+            }
+            .content-section a {
+                color: var(--text-color);
+                text-decoration: none;
+            }
+            .content-section a:hover {
+                color: var(--accent);
+                text-decoration: underline;
+            }
+            .xeno-footer {
+                flex-shrink: 0;
+                background: var(--footer-bg);
+                color: var(--footer-text);
+                text-align: center;
+                font-family: 'Roboto', sans-serif;
+                font-size: 0.95rem;
+                border-top: 2px solid var(--accent);
+                padding: 20px 10px;
+                width: 100%;
+                margin-top: 40px;
+            }
+            .xeno-footer a {
+                color: var(--text-color);
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+            .xeno-footer a:hover {
+                color: var(--accent);
+            }
+            .toggle-theme {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background-color: var(--box-color);
+                color: var(--text-color);
+                border: 2px solid var(--text-color);
+                border-radius: 30px;
+                padding: 6px 16px;
+                font-size: 0.9rem;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                z-index: 1000;
+            }
+            .toggle-theme:hover {
+                background-color: var(--accent);
+                color: #000;
+                border-color: var(--accent);
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+            }
+            th, td {
+                border: 1px solid var(--text-color);
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: var(--accent);
+                color: var(--box-color);
+                font-family: 'Orbitron', sans-serif;
+            }
+            .error-message {
+                color: #ff6347; /* Tomato red for errors */
+                font-weight: bold;
+            }
+            /* Specific styles for report items */
+            .reputation-score {
+                font-size: 1.8em;
+                font-weight: bold;
+                text-align: center;
+                padding: 15px;
+                margin-bottom: 20px;
+                border-radius: 5px;
+                font-family: 'Orbitron', sans-serif;
+            }
+            .reputation-score.malicious {
+                background-color: #3d0000;
+                color: #ff4747;
+                border: 2px solid #ff4747;
+                box-shadow: 0 0 15px rgba(255, 71, 71, 0.5);
+            }
+            .reputation-score.suspicious {
+                background-color: #3d3d00;
+                color: #ffff47;
+                border: 2px solid #ffff47;
+                box-shadow: 0 0 15px rgba(255, 255, 71, 0.5);
+            }
+            .reputation-score.clean {
+                background-color: #003d00;
+                color: #47ff47;
+                border: 2px solid #47ff47;
+                box-shadow: 0 0 15px rgba(71, 255, 71, 0.5);
+            }
+
+            .section-content {
+                background-color: var(--box-color);
+                border: 1px solid var(--accent);
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+                width: 100%; /* Ensure it takes full width of its parent */
+                box-sizing: border-box; /* Include padding/border in width */
+            }
+            .chainabuse-report-card {
+                background-color: #1a1a1a;
+                border: 1px solid #00f5d4;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+            .chainabuse-report-card h4 {
+                color: #00ff88;
+                margin-top: 0;
+                margin-bottom: 10px;
+                font-family: 'Orbitron', sans-serif;
+                font-size: 1.2em;
+            }
+            .chainabuse-report-card p {
+                margin-bottom: 5px;
+                color: #ccc;
+            }
+            .chainabuse-report-card strong {
+                color: #00f5d4;
+            }
+            .chainabuse-report-card ul {
+                list-style: none;
+                padding-left: 0;
+            }
+            .chainabuse-report-card ul li {
+                margin-bottom: 3px;
+            }
+            .wallet-summary-card {
+                background-color: #1a1a1a;
+                border: 1px solid var(--text-color);
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                width: 100%; /* Ensure it takes full width of its parent */
+                box-sizing: border-box;
+            }
+            .wallet-summary-card h4 {
+                color: var(--accent);
+                margin-top: 0;
+                margin-bottom: 10px;
+                font-family: 'Orbitron', sans-serif;
+                font-size: 1.1em;
+            }
+            .wallet-summary-card p {
+                margin-bottom: 5px;
+                color: var(--footer-text);
+            }
+            .wallet-summary-card strong {
+                color: var(--text-color);
+            }
+
+            .graph-container {
+                overflow-x: auto; /* Enable horizontal scrolling if graph is too wide */
+                padding: 10px;
+                border: 1px solid var(--accent);
+                border-radius: 8px;
+                background-color: var(--box-color);
+                margin-top: 20px;
+                min-height: 200px; /* Give some initial height */
+                display: flex;
+                flex-direction: column; /* Changed to column for text area */
+                justify-content: center;
+                align-items: center;
+                width: 100%; /* Ensure it takes full width of its parent */
+                box-sizing: border-box;
+            }
+            .graph-container img {
+                width: 100%; /* Force image to fill container width */
+                height: auto;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+            }
+            .badge {
+                display: inline-block;
+                padding: 5px 10px;
+                border-radius: 4px;
+                font-size: 0.85em;
+                margin-right: 5px;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+            .badge-malicious { background-color: #e53935; color: white; }
+            .badge-suspicious { background-color: #ffeb3b; color: #333; }
+            .badge-info { background-color: var(--text-color); color: var(--box-color); }
+            .badge-success { background-color: var(--accent); color: var(--box-color); }
+            .badge-cold { background-color: #6a0dad; color: white; }
+            .wallet-detail-card {
+                margin-bottom: 10px;
+                /* Removed cursor: pointer and onclick as these are no longer collapsible */
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 15px;
+                background-color: var(--box-color);
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                width: 100%; /* Ensure it takes full width of its parent */
+                box-sizing: border-box;
+            }
+            .wallet-detail-card h3 {
+                margin-top: 0;
+                margin-bottom: 10px;
+                color: var(--text-color);
+                border-bottom: none;
+                padding-bottom: 0;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .wallet-detail-card h3 .address-text {
+                flex-grow: 1;
+            }
+            .wallet-detail-item {
+                margin-bottom: 8px;
+                color: var(--footer-text);
+            }
+            .wallet-detail-item strong {
+                color: var(--text-color);
+            }
+            .wallet-detail-item ul {
+                padding-left: 20px;
+                margin-top: 5px;
+                list-style: disc;
+            }
+            .wallet-detail-item ul li {
+                margin-bottom: 3px;
+            }
+            .wallet-list-summary {
+                list-style: none;
+                padding: 0;
+            }
+            .wallet-list-summary li {
+                background-color: var(--input-bg);
+                border: 1px solid var(--input-border);
+                border-radius: 5px;
+                padding: 10px 15px;
+                margin-bottom: 8px;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .wallet-list-summary li .address {
+                font-weight: bold;
+                color: var(--accent);
+                margin-right: 15px;
+                word-break: break-all;
+                flex-basis: 60%;
+            }
+            .wallet-list-summary li .flags {
+                font-size: 0.9em;
+                color: var(--footer-text);
+                flex-basis: 35%;
+                text-align: right;
+            }
+            @media (max-width: 768px) {
+                .wallet-list-summary li {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                .wallet-list-summary li .address {
+                    margin-right: 0;
+                    margin-bottom: 5px;
+                    flex-basis: 100%;
+                }
+                .wallet-list-summary li .flags {
+                    text-align: left;
+                    flex-basis: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <button id="theme-toggle-button" class="toggle-theme" onclick="toggleTheme()">Light Mode</button>
+        <div class="header">
+            <h1>XenoByte Wallet Forensic Report</h1>
+            <p class="subtitle">Analysis for Target Wallet: <strong>17TMc2UkVRSga2yYvuxSD9Q1XyB2EPRjTF</strong> (Tracing Depth: 2)</p>
+            <p class="subtitle">Generated: 2025-08-08 19:01:50 UTC</p>
+        </div>
+        <div class="content-section">
+            <div class="reputation-score malicious">
+                Target Wallet Reputation: 🔴 MALICIOUS / HIGH RISK
+            </div>
+
+            <h2>Overall Summary</h2>
+            <div class="section-content">
+                <p><strong>Total Wallets Analyzed:</strong> 9</p>
+                <p><strong>Total Malicious Wallets Identified:</strong> 1</p>
+                <p><strong>Total Suspicious Wallets Identified:</strong> 1</p>
+                <p><strong>Wallets with Chainabuse Reports:</strong> 1</p>
+                
+                <h3>Cold Wallets Identified (High Balance & Dormant)</h3>
+                <p>No cold wallets identified in the traced network.</p>
+
+                <h3>Top Receivers in Traced Flow (Potential Accumulation Points)</h3>
+                <p>These wallets received the largest net amounts within the traced transaction network, indicating potential accumulation points for funds.</p>
+                <ul><li>17TMc2UkVRSga2yYvuxSD9Q1XyB2EPRjTF: Received 1.26686348 BTC</li><li>1DT3MuQrG7JY5hrMwtsEghukq6nBLHq6gr: Received 1.11301047 BTC</li><li>14oFeithByDgKAqwmtoQ6DHp44nKK3WBZM: Received 0.15377036 BTC</li><li>bc1qcwadmycvzen2qkjnge2hhgtgulerssy56pqx9k: Received 0.10389090 BTC</li><li>bc1q98z5gcxan998h0uem0y4y4qtmm45xk4r2e5m9p: Received 0.07918490 BTC</li><li>1DgLhGeJfoUkkXdYNVf7SNckX5ST5taPVo: Received 0.07918490 BTC</li><li>bc1q9dd8k6jtdsc7yrefk0ythmhpensn22m26ge7rl: Received 0.05448090 BTC</li></ul>
+
+                <h3>Top Senders in Traced Flow (Major Distribution Points)</h3>
+                <p>These wallets sent the largest net amounts within the traced transaction network, indicating major distribution points for funds.</p>
+                <ul><li>17TMc2UkVRSga2yYvuxSD9Q1XyB2EPRjTF: Sent 1.26678083 BTC</li><li>341sswxPauqrx5Yz6q4hQEHdvqSLPZmso1: Sent 1.03886498 BTC</li><li>3EwqpC9RxVV5WMjN4SPF4juz7fuEKQQ4Zi: Sent 0.54474010 BTC</li></ul>
+            </div>
+
+            <h2>Transaction Flow Graph</h2>
+    
+            <p>Below is a visualization of the transaction flow generated using Graphviz.</p>
+            <div class="graph-container">
+                <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+DQo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iDQogImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8IS0tIEdlbmVyYXRlZCBieSBncmFwaHZpeiB2ZXJzaW9uIDEzLjEuMCAoMjAyNTA3MDEuMDk1NSkNCiAtLT4NCjwhLS0gVGl0bGU6IEcgUGFnZXM6IDEgLS0+DQo8c3ZnIHdpZHRoPSI2MjFwdCIgaGVpZ2h0PSIzMjRwdCINCiB2aWV3Qm94PSIwLjAwIDAuMDAgNjIxLjAwIDMyNC4wMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+DQo8ZyBpZD0iZ3JhcGgwIiBjbGFzcz0iZ3JhcGgiIHRyYW5zZm9ybT0ic2NhbGUoMSAxKSByb3RhdGUoMCkgdHJhbnNsYXRlKDQgMzIwKSI+DQo8dGl0bGU+RzwvdGl0bGU+DQo8cG9seWdvbiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJub25lIiBwb2ludHM9Ii00LDQgLTQsLTMyMCA2MTYuNzUsLTMyMCA2MTYuNzUsNCAtNCw0Ii8+DQo8IS0tIDE3VE1jMlVrVlJTZ2EyeVl2dXhTRDlRMVh5QjJFUFJqVEYgLS0+DQo8ZyBpZD0ibm9kZTEiIGNsYXNzPSJub2RlIj4NCjx0aXRsZT4xN1RNYzJVa1ZSU2dhMnlZdnV4U0Q5UTFYeUIyRVBSalRGPC90aXRsZT4NCjxwYXRoIGZpbGw9IiMwMDIwNDAiIHN0cm9rZT0iIzY5OTlmYyIgZD0iTTM2My41LC0yNTQuNUMzNjMuNSwtMjU0LjUgMjQ5LjI1LC0yNTQuNSAyNDkuMjUsLTI1NC41IDI0My4yNSwtMjU0LjUgMjM3LjI1LC0yNDguNSAyMzcuMjUsLTI0Mi41IDIzNy4yNSwtMjQyLjUgMjM3LjI1LC0yMjUuNSAyMzcuMjUsLTIyNS41IDIzNy4yNSwtMjE5LjUgMjQzLjI1LC0yMTMuNSAyNDkuMjUsLTIxMy41IDI0OS4yNSwtMjEzLjUgMzYzLjUsLTIxMy41IDM2My41LC0yMTMuNSAzNjkuNSwtMjEzLjUgMzc1LjUsLTIxOS41IDM3NS41LC0yMjUuNSAzNzUuNSwtMjI1LjUgMzc1LjUsLTI0Mi41IDM3NS41LC0yNDIuNSAzNzUuNSwtMjQ4LjUgMzY5LjUsLTI1NC41IDM2My41LC0yNTQuNSIvPg0KPHRleHQgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgeD0iMzA2LjM4IiB5PSItMjM3LjIiIGZvbnQtZmFtaWx5PSJUaW1lcyBOZXcgUm9tYW4sc2VyaWYiIGZvbnQtc2l6ZT0iMTQuMDAiIGZpbGw9IiMwMGY1ZDQiPlRBUkdFVDwvdGV4dD4NCjx0ZXh0IHhtbDpzcGFjZT0icHJlc2VydmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjMwNi4zOCIgeT0iLTIyMC43IiBmb250LWZhbWlseT0iVGltZXMgTmV3IFJvbWFuLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIiBmaWxsPSIjMDBmNWQ0Ij4xN1RNYzJVa1ZSLi4uUmpURjwvdGV4dD4NCjwvZz4NCjwhLS0gMTRvRmVpdGhCeURnS0Fxd210b1E2REhwNDRuS0szV0JaTSAtLT4NCjxnIGlkPSJub2RlMiIgY2xhc3M9Im5vZGUiPg0KPHRpdGxlPjE0b0ZlaXRoQnlEZ0tBcXdtdG9RNkRIcDQ0bktLM1dCWk08L3RpdGxlPg0KPHBhdGggZmlsbD0iIzFhMWExYSIgc3Ryb2tlPSIjMDBmZjg4IiBkPSJNNjAwLjc1LC0yNzlDNjAwLjc1LC0yNzkgNDkxLC0yNzkgNDkxLC0yNzkgNDg1LC0yNzkgNDc5LC0yNzMgNDc5LC0yNjcgNDc5LC0yNjcgNDc5LC0yNTUgNDc5LC0yNTUgNDc5LC0yNDkgNDg1LC0yNDMgNDkxLC0yNDMgNDkxLC0yNDMgNjAwLjc1LC0yNDMgNjAwLjc1LC0yNDMgNjA2Ljc1LC0yNDMgNjEyLjc1LC0yNDkgNjEyLjc1LC0yNTUgNjEyLjc1LC0yNTUgNjEyLjc1LC0yNjcgNjEyLjc1LC0yNjcgNjEyLjc1LC0yNzMgNjA2Ljc1LC0yNzkgNjAwLjc1LC0yNzkiLz4NCjx0ZXh0IHhtbDpzcGFjZT0icHJlc2VydmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjU0NS44OCIgeT0iLTI1NS45NSIgZm9udC1mYW1pbHk9IlRpbWVzIE5ldyBSb21hbixzZXJpZiIgZm9udC1zaXplPSIxNC4wMCIgZmlsbD0iIzAwZjVkNCI+MTRvRmVpdGhCeS4uLldCWk08L3RleHQ+DQo8L2c+DQo8IS0tIDE3VE1jMlVrVlJTZ2EyeVl2dXhTRDlRMVh5QjJFUFJqVEYmIzQ1OyZndDsxNG9GZWl0aEJ5RGdLQXF3bXRvUTZESHA0NG5LSzNXQlpNIC0tPg0KPGcgaWQ9ImVkZ2UxIiBjbGFzcz0iZWRnZSI+DQo8dGl0bGU+MTdUTWMyVWtWUlNnYTJ5WXZ1eFNEOVExWHlCMkVQUmpURiYjNDU7Jmd0OzE0b0ZlaXRoQnlEZ0tBcXdtdG9RNkRIcDQ0bktLM1dCWk08L3RpdGxlPg0KPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBmNWQ0IiBkPSJNMzc1Ljc1LC0yNDEuNzdDNDA0LjQzLC0yNDUuMDMgNDM3LjkyLC0yNDguODQgNDY3LjQ5LC0yNTIuMiIvPg0KPHBvbHlnb24gZmlsbD0iIzAwZjVkNCIgc3Ryb2tlPSIjMDBmNWQ0IiBwb2ludHM9IjQ2Ni43OCwtMjU1LjY0IDQ3Ny4xMSwtMjUzLjMgNDY3LjU3LC0yNDguNjkgNDY2Ljc4LC0yNTUuNjQiLz4NCjx0ZXh0IHhtbDpzcGFjZT0icHJlc2VydmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjQyNy4yNSIgeT0iLTI1My45MSIgZm9udC1mYW1pbHk9IlRpbWVzIE5ldyBSb21hbixzZXJpZiIgZm9udC1zaXplPSIxNC4wMCIgZmlsbD0iI2NjY2NjYyI+MC4xNTM4IEJUQzwvdGV4dD4NCjwvZz4NCjwhLS0gMURUM011UXJHN0pZNWhyTXd0c0VnaHVrcTZuQkxIcTZnciAtLT4NCjxnIGlkPSJub2RlMyIgY2xhc3M9Im5vZGUiPg0KPHRpdGxlPjFEVDNNdVFyRzdKWTVock13dHNFZ2h1a3E2bkJMSHE2Z3I8L3RpdGxlPg0KPHBhdGggZmlsbD0iIzFhMWExYSIgc3Ryb2tlPSIjMDBmZjg4IiBkPSJNNjAwLjc1LC0yMjVDNjAwLjc1LC0yMjUgNDkxLC0yMjUgNDkxLC0yMjUgNDg1LC0yMjUgNDc5LC0yMTkgNDc5LC0yMTMgNDc5LC0yMTMgNDc5LC0yMDEgNDc5LC0yMDEgNDc5LC0xOTUgNDg1LC0xODkgNDkxLC0xODkgNDkxLC0xODkgNjAwLjc1LC0xODkgNjAwLjc1LC0xODkgNjA2Ljc1LC0xODkgNjEyLjc1LC0xOTUgNjEyLjc1LC0yMDEgNjEyLjc1LC0yMDEgNjEyLjc1LC0yMTMgNjEyLjc1LC0yMTMgNjEyLjc1LC0yMTkgNjA2Ljc1LC0yMjUgNjAwLjc1LC0yMjUiLz4NCjx0ZXh0IHhtbDpzcGFjZT0icHJlc2VydmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjU0NS44OCIgeT0iLTIwMS45NSIgZm9udC1mYW1pbHk9IlRpbWVzIE5ldyBSb21hbixzZXJpZiIgZm9udC1zaXplPSIxNC4wMCIgZmlsbD0iIzAwZjVkNCI+MURUM011UXJHNy4uLnE2Z3I8L3RleHQ+DQo8L2c+DQo8IS0tIDE3VE1jMlVrVlJTZ2EyeVl2dXhTRDlRMVh5QjJFUFJqVEYmIzQ1OyZndDsxRFQzTXVRckc3Slk1aHJNd3RzRWdodWtxNm5CTEhxNmdyIC0tPg0KPGcgaWQ9ImVkZ2UyIiBjbGFzcz0iZWRnZSI+DQo8dGl0bGU+MTdUTWMyVWtWUlNnYTJ5WXZ1eFNEOVExWHlCMkVQUmpURiYjNDU7Jmd0OzFEVDNNdVFyRzdKWTVock13dHNFZ2h1a3E2bkJMSHE2Z3I8L3RpdGxlPg0KPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBmNWQ0IiBkPSJNMzc1LjUzLC0yMjUuNjFDMzgxLjYxLC0yMjQuODkgMzg3LjY2LC0yMjQuMTcgMzkzLjUsLTIyMy41IDQxNy40MiwtMjIwLjc0IDQ0My40OSwtMjE3Ljg1IDQ2Ny4xNCwtMjE1LjI4Ii8+DQo8cG9seWdvbiBmaWxsPSIjMDBmNWQ0IiBzdHJva2U9IiMwMGY1ZDQiIHBvaW50cz0iNDY3LjQ3LC0yMTguNzcgNDc3LjAzLC0yMTQuMjEgNDY2LjcxLC0yMTEuODEgNDY3LjQ3LC0yMTguNzciLz4NCjx0ZXh0IHhtbDpzcGFjZT0icHJlc2VydmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjQyNy4yNSIgeT0iLTIyNi43IiBmb250LWZhbWlseT0iVGltZXMgTmV3IFJvbWFuLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIiBmaWxsPSIjY2NjY2NjIj4xLjExMzAgQlRDPC90ZXh0Pg0KPC9nPg0KPCEtLSAzRXdxcEM5UnhWVjVXTWpONFNQRjRqdXo3ZnVFS1FRNFppIC0tPg0KPGcgaWQ9Im5vZGU0IiBjbGFzcz0ibm9kZSI+DQo8dGl0bGU+M0V3cXBDOVJ4VlY1V01qTjRTUEY0anV6N2Z1RUtRUTRaaTwvdGl0bGU+DQo8cGF0aCBmaWxsPSIjMWExYTFhIiBzdHJva2U9IiMwMGZmODgiIGQ9Ik0xMjEuNzUsLTI1NkMxMjEuNzUsLTI1NiAxMiwtMjU2IDEyLC0yNTYgNiwtMjU2IDAsLTI1MCAwLC0yNDQgMCwtMjQ0IDAsLTIzMiAwLC0yMzIgMCwtMjI2IDYsLTIyMCAxMiwtMjIwIDEyLC0yMjAgMTIxLjc1LC0yMjAgMTIxLjc1LC0yMjAgMTI3Ljc1LC0yMjAgMTMzLjc1LC0yMjYgMTMzLjc1LC0yMzIgMTMzLjc1LC0yMzIgMTMzLjc1LC0yNDQgMTMzLjc1LC0yNDQgMTMzLjc1LC0yNTAgMTI3Ljc1LC0yNTYgMTIxLjc1LC0yNTYiLz4NCjx0ZXh0IHhtbDpzcGFjZT0icHJlc2VydmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjY2Ljg4IiB5PSItMjMyLjk1IiBmb250LWZhbWlseT0iVGltZXMgTmV3IFJvbWFuLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIiBmaWxsPSIjMDBmNWQ0Ij4zRXdxcEM5UnhWLi4uUTRaaTwvdGV4dD4NCjwvZz4NCjwhLS0gM0V3cXBDOVJ4VlY1V01qTjRTUEY0anV6N2Z1RUtRUTRaaSYjNDU7Jmd0OzE3VE1jMlVrVlJTZ2EyeVl2dXhTRDlRMVh5QjJFUFJqVEYgLS0+DQo8ZyBpZD0iZWRnZTQiIGNsYXNzPSJlZGdlIj4NCjx0aXRsZT4zRXdxcEM5UnhWVjVXTWpONFNQRjRqdXo3ZnVFS1FRNFppJiM0NTsmZ3Q7MTdUTWMyVWtWUlNnYTJ5WXZ1eFNEOVExWHlCMkVQUmpURjwvdGl0bGU+DQo8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMwMGY1ZDQiIGQ9Ik0xMzQuMTksLTIzNy4yN0MxNjAuNjUsLTIzNi45NCAxOTEuMzksLTIzNi41MSAyMTkuMjUsLTIzNiAyMjEuNDQsLTIzNS45NiAyMjMuNjYsLTIzNS45MiAyMjUuODksLTIzNS44NyIvPg0KPHBvbHlnb24gZmlsbD0iIzAwZjVkNCIgc3Ryb2tlPSIjMDBmNWQ0IiBwb2ludHM9IjIyNS43NywtMjM5LjM4IDIzNS43LC0yMzUuNjggMjI1LjYzLC0yMzIuMzggMjI1Ljc3LC0yMzkuMzgiLz4NCjx0ZXh0IHhtbDpzcGFjZT0icHJlc2VydmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjE4NS41IiB5PSItMjQwLjIzIiBmb250LWZhbWlseT0iVGltZXMgTmV3IFJvbWFuLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIiBmaWxsPSIjY2NjY2NjIj4wLjQzNTggQlRDPC90ZXh0Pg0KPC9nPg0KPCEtLSBiYzFxOTh6NWdjeGFuOTk4aDB1ZW0weTR5NHF0bW00NXhrNHIyZTVtOXAgLS0+DQo8ZyBpZD0ibm9kZTUiIGNsYXNzPSJub2RlIj4NCjx0aXRsZT5iYzFxOTh6NWdjeGFuOTk4aDB1ZW0weTR5NHF0bW00NXhrNHIyZTVtOXA8L3RpdGxlPg0KPHBhdGggZmlsbD0iIzFhMWExYSIgc3Ryb2tlPSIjMDBmZjg4IiBkPSJNMzU2LjM4LC0xODFDMzU2LjM4LC0xODEgMjU2LjM4LC0xODEgMjU2LjM4LC0xODEgMjUwLjM4LC0xODEgMjQ0LjM4LC0xNzUgMjQ0LjM4LC0xNjkgMjQ0LjM4LC0xNjkgMjQ0LjM4LC0xNTcgMjQ0LjM4LC0xNTcgMjQ0LjM4LC0xNTEgMjUwLjM4LC0xNDUgMjU2LjM4LC0xNDUgMjU2LjM4LC0xNDUgMzU2LjM4LC0xNDUgMzU2LjM4LC0xNDUgMzYyLjM4LC0xNDUgMzY4LjM4LC0xNTEgMzY4LjM4LC0xNTcgMzY4LjM4LC0xNTcgMzY4LjM4LC0xNjkgMzY4LjM4LC0xNjkgMzY4LjM4LC0xNzUgMzYyLjM4LC0xODEgMzU2LjM4LC0xODEiLz4NCjx0ZXh0IHhtbDpzcGFjZT0icHJlc2VydmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjMwNi4zOCIgeT0iLTE1Ny45NSIgZm9udC1mYW1pbHk9IlRpbWVzIE5ldyBSb21hbixzZXJpZiIgZm9udC1zaXplPSIxNC4wMCIgZmlsbD0iIzAwZjVkNCI+YmMxcTk4ejVnYy4uLjVtOXA8L3RleHQ+DQo8L2c+DQo8IS0tIDNFd3FwQzlSeFZWNVdNak40U1BGNGp1ejdmdUVLUVE0WmkmIzQ1OyZndDtiYzFxOTh6NWdjeGFuOTk4aDB1ZW0weTR5NHF0bW00NXhrNHIyZTVtOXAgLS0+DQo8ZyBpZD0iZWRnZTMiIGNsYXNzPSJlZGdlIj4NCjx0aXRsZT4zRXdxcEM5UnhWVjVXTWpONFNQRjRqdXo3ZnVFS1FRNFppJiM0NTsmZ3Q7YmMxcTk4ejVnY3hhbjk5OGgwdWVtMHk0eTRxdG1tNDV4azRyMmU1bTlwPC90aXRsZT4NCjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwZjVkNCIgZD0iTTEzMy45LC0yMjAuMzRDMTY2Ljg4LC0yMTEuMzkgMjAzLjEzLC0yMDEuMzEgMjE5LjI1LC0xOTYgMjI4Ljk3LC0xOTIuOCAyMzkuMiwtMTg5LjE0IDI0OS4wOCwtMTg1LjQ1Ii8+DQo8cG9seWdvbiBmaWxsPSIjMDBmNWQ0IiBzdHJva2U9IiMwMGY1ZDQiIHBvaW50cz0iMjUwLjEsLTE4OC44MSAyNTguMjEsLTE4MS45OSAyNDcuNjIsLTE4Mi4yNiAyNTAuMSwtMTg4LjgxIi8+DQo8dGV4dCB4bWw6c3BhY2U9InByZXNlcnZlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB4PSIxODUuNSIgeT0iLTIxNy41NyIgZm9udC1mYW1pbHk9IlRpbWVzIE5ldyBSb21hbixzZXJpZiIgZm9udC1zaXplPSIxNC4wMCIgZmlsbD0iI2NjY2NjYyI+MC4wMjcyIEJUQzwvdGV4dD4NCjwvZz4NCjwhLS0gMURnTGhHZUpmb1Vra1hkWU5WZjdTTmNrWDVTVDV0YVBWbyAtLT4NCjxnIGlkPSJub2RlNiIgY2xhc3M9Im5vZGUiPg0KPHRpdGxlPjFEZ0xoR2VKZm9Va2tYZFlOVmY3U05ja1g1U1Q1dGFQVm88L3RpdGxlPg0KPHBhdGggZmlsbD0iIzFhMWExYSIgc3Ryb2tlPSIjMDBmZjg4IiBkPSJNMzU3LjUsLTk4QzM1Ny41LC05OCAyNTUuMjUsLTk4IDI1NS4yNSwtOTggMjQ5LjI1LC05OCAyNDMuMjUsLTkyIDI0My4yNSwtODYgMjQzLjI1LC04NiAyNDMuMjUsLTc0IDI0My4yNSwtNzQgMjQzLjI1LC02OCAyNDkuMjUsLTYyIDI1NS4yNSwtNjIgMjU1LjI1LC02MiAzNTcuNSwtNjIgMzU3LjUsLTYyIDM2My41LC02MiAzNjkuNSwtNjggMzY5LjUsLTc0IDM2OS41LC03NCAzNjkuNSwtODYgMzY5LjUsLTg2IDM2OS41LC05MiAzNjMuNSwtOTggMzU3LjUsLTk4Ii8+DQo8dGV4dCB4bWw6c3BhY2U9InByZXNlcnZlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB4PSIzMDYuMzgiIHk9Ii03NC45NSIgZm9udC1mYW1pbHk9IlRpbWVzIE5ldyBSb21hbixzZXJpZiIgZm9udC1zaXplPSIxNC4wMCIgZmlsbD0iIzAwZjVkNCI+MURnTGhHZUpmby4uLmFQVm88L3RleHQ+DQo8L2c+DQo8IS0tIDNFd3FwQzlSeFZWNVdNak40U1BGNGp1ejdmdUVLUVE0WmkmIzQ1OyZndDsxRGdMaEdlSmZvVWtrWGRZTlZmN1NOY2tYNVNUNXRhUFZvIC0tPg0KPGcgaWQ9ImVkZ2U1IiBjbGFzcz0iZWRnZSI+DQo8dGl0bGU+M0V3cXBDOVJ4VlY1V01qTjRTUEY0anV6N2Z1RUtRUTRaaSYjNDU7Jmd0OzFEZ0xoR2VKZm9Va2tYZFlOVmY3U05ja1g1U1Q1dGFQVm88L3RpdGxlPg0KPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBmNWQ0IiBkPSJNNzguMTQsLTIxOS41N0M5MS45MSwtMTk2LjUxIDExOC41NCwtMTU3LjQgMTUxLjc1LC0xMzUuNSAxNzcuODIsLTExOC4zMSAxODkuOCwtMTI2LjM3IDIxOS4yNSwtMTE2IDIzMC40OSwtMTEyLjA0IDI0Mi4zNywtMTA3LjM5IDI1My42LC0xMDIuNzciLz4NCjxwb2x5Z29uIGZpbGw9IiMwMGY1ZDQiIHN0cm9rZT0iIzAwZjVkNCIgcG9pbnRzPSIyNTQuODYsLTEwNi4wNCAyNjIuNzQsLTk4Ljk1IDI1Mi4xNiwtOTkuNTggMjU0Ljg2LC0xMDYuMDQiLz4NCjx0ZXh0IHhtbDpzcGFjZT0icHJlc2VydmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjE4NS41IiB5PSItMTM4LjciIGZvbnQtZmFtaWx5PSJUaW1lcyBOZXcgUm9tYW4sc2VyaWYiIGZvbnQtc2l6ZT0iMTQuMDAiIGZpbGw9IiNjY2NjY2MiPjAuMDI3MiBCVEM8L3RleHQ+DQo8L2c+DQo8IS0tIGJjMXE5ZGQ4azZqdGRzYzd5cmVmazB5dGhtaHBlbnNuMjJtMjZnZTdybCAtLT4NCjxnIGlkPSJub2RlNyIgY2xhc3M9Im5vZGUiPg0KPHRpdGxlPmJjMXE5ZGQ4azZqdGRzYzd5cmVmazB5dGhtaHBlbnNuMjJtMjZnZTdybDwvdGl0bGU+DQo8cGF0aCBmaWxsPSIjMWExYTFhIiBzdHJva2U9IiMwMGZmODgiIGQ9Ik0zNTEuODgsLTMxNkMzNTEuODgsLTMxNiAyNjAuODgsLTMxNiAyNjAuODgsLTMxNiAyNTQuODgsLTMxNiAyNDguODgsLTMxMCAyNDguODgsLTMwNCAyNDguODgsLTMwNCAyNDguODgsLTI5MiAyNDguODgsLTI5MiAyNDguODgsLTI4NiAyNTQuODgsLTI4MCAyNjAuODgsLTI4MCAyNjAuODgsLTI4MCAzNTEuODgsLTI4MCAzNTEuODgsLTI4MCAzNTcuODgsLTI4MCAzNjMuODgsLTI4NiAzNjMuODgsLTI5MiAzNjMuODgsLTI5MiAzNjMuODgsLTMwNCAzNjMuODgsLTMwNCAzNjMuODgsLTMxMCAzNTcuODgsLTMxNiAzNTEuODgsLTMxNiIvPg0KPHRleHQgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgeD0iMzA2LjM4IiB5PSItMjkyLjk1IiBmb250LWZhbWlseT0iVGltZXMgTmV3IFJvbWFuLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIiBmaWxsPSIjMDBmNWQ0Ij5iYzFxOWRkOGs2Li4uZTdybDwvdGV4dD4NCjwvZz4NCjwhLS0gM0V3cXBDOVJ4VlY1V01qTjRTUEY0anV6N2Z1RUtRUTRaaSYjNDU7Jmd0O2JjMXE5ZGQ4azZqdGRzYzd5cmVmazB5dGhtaHBlbnNuMjJtMjZnZTdybCAtLT4NCjxnIGlkPSJlZGdlNiIgY2xhc3M9ImVkZ2UiPg0KPHRpdGxlPjNFd3FwQzlSeFZWNVdNak40U1BGNGp1ejdmdUVLUVE0WmkmIzQ1OyZndDtiYzFxOWRkOGs2anRkc2M3eXJlZmsweXRobWhwZW5zbjIybTI2Z2U3cmw8L3RpdGxlPg0KPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBmNWQ0IiBkPSJNMTM0LjAzLC0yNTQuNzFDMTY2LjM0LC0yNjIuODggMjA1LjE2LC0yNzIuNjggMjM3LjY3LC0yODAuOSIvPg0KPHBvbHlnb24gZmlsbD0iIzAwZjVkNCIgc3Ryb2tlPSIjMDBmNWQ0IiBwb2ludHM9IjIzNi40MiwtMjg0LjE5IDI0Ni45NywtMjgzLjI0IDIzOC4xMywtMjc3LjQgMjM2LjQyLC0yODQuMTkiLz4NCjx0ZXh0IHhtbDpzcGFjZT0icHJlc2VydmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjE4NS41IiB5PSItMjc4LjM0IiBmb250LWZhbWlseT0iVGltZXMgTmV3IFJvbWFuLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIiBmaWxsPSIjY2NjY2NjIj4wLjA1NDUgQlRDPC90ZXh0Pg0KPC9nPg0KPCEtLSAzNDFzc3d4UGF1cXJ4NVl6NnE0aFFFSGR2cVNMUFptc28xIC0tPg0KPGcgaWQ9Im5vZGU4IiBjbGFzcz0ibm9kZSI+DQo8dGl0bGU+MzQxc3N3eFBhdXFyeDVZejZxNGhRRUhkdnFTTFBabXNvMTwvdGl0bGU+DQo8cGF0aCBmaWxsPSIjMWExYTFhIiBzdHJva2U9IiMwMGZmODgiIGQ9Ik0xMTcuMjUsLTk2QzExNy4yNSwtOTYgMTYuNSwtOTYgMTYuNSwtOTYgMTAuNSwtOTYgNC41LC05MCA0LjUsLTg0IDQuNSwtODQgNC41LC03MiA0LjUsLTcyIDQuNSwtNjYgMTAuNSwtNjAgMTYuNSwtNjAgMTYuNSwtNjAgMTE3LjI1LC02MCAxMTcuMjUsLTYwIDEyMy4yNSwtNjAgMTI5LjI1LC02NiAxMjkuMjUsLTcyIDEyOS4yNSwtNzIgMTI5LjI1LC04NCAxMjkuMjUsLTg0IDEyOS4yNSwtOTAgMTIzLjI1LC05NiAxMTcuMjUsLTk2Ii8+DQo8dGV4dCB4bWw6c3BhY2U9InByZXNlcnZlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB4PSI2Ni44OCIgeT0iLTcyLjk1IiBmb250LWZhbWlseT0iVGltZXMgTmV3IFJvbWFuLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIiBmaWxsPSIjMDBmNWQ0Ij4zNDFzc3d4UGF1Li4ubXNvMTwvdGV4dD4NCjwvZz4NCjwhLS0gMzQxc3N3eFBhdXFyeDVZejZxNGhRRUhkdnFTTFBabXNvMSYjNDU7Jmd0OzE3VE1jMlVrVlJTZ2EyeVl2dXhTRDlRMVh5QjJFUFJqVEYgLS0+DQo8ZyBpZD0iZWRnZTkiIGNsYXNzPSJlZGdlIj4NCjx0aXRsZT4zNDFzc3d4UGF1cXJ4NVl6NnE0aFFFSGR2cVNMUFptc28xJiM0NTsmZ3Q7MTdUTWMyVWtWUlNnYTJ5WXZ1eFNEOVExWHlCMkVQUmpURjwvdGl0bGU+DQo8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMwMGY1ZDQiIGQ9Ik04My4wMiwtOTYuNEM5OC41NCwtMTE0LjExIDEyNC4yNCwtMTQwLjQyIDE1MS43NSwtMTU2IDE3OC45MiwtMTcxLjM5IDE5MS41NSwtMTYxLjA5IDIxOS4yNSwtMTc1LjUgMjI4LjM2LC0xODAuMjQgMjI4LjkyLC0xODMuOTggMjM3LjI1LC0xOTAgMjQ1LjEyLC0xOTUuNjkgMjUzLjcsLTIwMS41MSAyNjIuMDMsLTIwNi45OCIvPg0KPHBvbHlnb24gZmlsbD0iIzAwZjVkNCIgc3Ryb2tlPSIjMDBmNWQ0IiBwb2ludHM9IjI2MC4wOCwtMjA5Ljg4IDI3MC4zNywtMjEyLjM4IDI2My44OCwtMjA0IDI2MC4wOCwtMjA5Ljg4Ii8+DQo8dGV4dCB4bWw6c3BhY2U9InByZXNlcnZlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB4PSIxODUuNSIgeT0iLTE3OC43IiBmb250LWZhbWlseT0iVGltZXMgTmV3IFJvbWFuLHNlcmlmIiBmb250LXNpemU9IjE0LjAwIiBmaWxsPSIjY2NjY2NjIj4wLjgzMTEgQlRDPC90ZXh0Pg0KPC9nPg0KPCEtLSAzNDFzc3d4UGF1cXJ4NVl6NnE0aFFFSGR2cVNMUFptc28xJiM0NTsmZ3Q7YmMxcTk4ejVnY3hhbjk5OGgwdWVtMHk0eTRxdG1tNDV4azRyMmU1bTlwIC0tPg0KPGcgaWQ9ImVkZ2U3IiBjbGFzcz0iZWRnZSI+DQo8dGl0bGU+MzQxc3N3eFBhdXFyeDVZejZxNGhRRUhkdnFTTFBabXNvMSYjNDU7Jmd0O2JjMXE5OHo1Z2N4YW45OThoMHVlbTB5NHk0cXRtbTQ1eGs0cjJlNW05cDwvdGl0bGU+DQo8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMwMGY1ZDQiIGQ9Ik0xMjkuNzEsLTc5LjlDMTU3Ljg3LC04Mi40OCAxOTEuMTIsLTg4IDIxOS4yNSwtOTkuNSAyNDEuMDEsLTEwOC40IDI2Mi4zMSwtMTI0LjAyIDI3OC4yOCwtMTM3LjU0Ii8+DQo8cG9seWdvbiBmaWxsPSIjMDBmNWQ0IiBzdHJva2U9IiMwMGY1ZDQiIHBvaW50cz0iMjc1LjYsLTEzOS44NSAyODUuNDMsLTE0My43OCAyODAuMiwtMTM0LjU3IDI3NS42LC0xMzkuODUiLz4NCjx0ZXh0IHhtbDpzcGFjZT0icHJlc2VydmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjE4NS41IiB5PSItMTAyLjciIGZvbnQtZmFtaWx5PSJUaW1lcyBOZXcgUm9tYW4sc2VyaWYiIGZvbnQtc2l6ZT0iMTQuMDAiIGZpbGw9IiNjY2NjY2MiPjAuMDUxOSBCVEM8L3RleHQ+DQo8L2c+DQo8IS0tIDM0MXNzd3hQYXVxcng1WXo2cTRoUUVIZHZxU0xQWm1zbzEmIzQ1OyZndDsxRGdMaEdlSmZvVWtrWGRZTlZmN1NOY2tYNVNUNXRhUFZvIC0tPg0KPGcgaWQ9ImVkZ2U4IiBjbGFzcz0iZWRnZSI+DQo8dGl0bGU+MzQxc3N3eFBhdXFyeDVZejZxNGhRRUhkdnFTTFBabXNvMSYjNDU7Jmd0OzFEZ0xoR2VKZm9Va2tYZFlOVmY3U05ja1g1U1Q1dGFQVm88L3RpdGxlPg0KPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBmNWQ0IiBkPSJNMTI5LjQ2LC02Mi44M0MxMzYuOTMsLTYxLjQ2IDE0NC40OSwtNjAuMjkgMTUxLjc1LC01OS41IDE4MS41NywtNTYuMjUgMTg5LjQ1LC01NiAyMTkuMjUsLTU5LjUgMjIzLjM5LC01OS45OSAyMjcuNjEsLTYwLjYgMjMxLjg2LC02MS4zIi8+DQo8cG9seWdvbiBmaWxsPSIjMDBmNWQ0IiBzdHJva2U9IiMwMGY1ZDQiIHBvaW50cz0iMjMxLjE2LC02NC43MyAyNDEuNjMsLTYzLjEgMjMyLjQzLC01Ny44NSAyMzEuMTYsLTY0LjczIi8+DQo8dGV4dCB4bWw6c3BhY2U9InByZXNlcnZlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB4PSIxODUuNSIgeT0iLTYyLjciIGZvbnQtZmFtaWx5PSJUaW1lcyBOZXcgUm9tYW4sc2VyaWYiIGZvbnQtc2l6ZT0iMTQuMDAiIGZpbGw9IiNjY2NjY2MiPjAuMDUxOSBCVEM8L3RleHQ+DQo8L2c+DQo8IS0tIGJjMXFjd2FkbXljdnplbjJxa2puZ2UyaGhndGd1bGVyc3N5NTZwcXg5ayAtLT4NCjxnIGlkPSJub2RlOSIgY2xhc3M9Im5vZGUiPg0KPHRpdGxlPmJjMXFjd2FkbXljdnplbjJxa2puZ2UyaGhndGd1bGVyc3N5NTZwcXg5azwvdGl0bGU+DQo8cGF0aCBmaWxsPSIjMWExYTFhIiBzdHJva2U9IiMwMGZmODgiIGQ9Ik0zNTcuNSwtMzZDMzU3LjUsLTM2IDI1NS4yNSwtMzYgMjU1LjI1LC0zNiAyNDkuMjUsLTM2IDI0My4yNSwtMzAgMjQzLjI1LC0yNCAyNDMuMjUsLTI0IDI0My4yNSwtMTIgMjQzLjI1LC0xMiAyNDMuMjUsLTYgMjQ5LjI1LDAgMjU1LjI1LDAgMjU1LjI1LDAgMzU3LjUsMCAzNTcuNSwwIDM2My41LDAgMzY5LjUsLTYgMzY5LjUsLTEyIDM2OS41LC0xMiAzNjkuNSwtMjQgMzY5LjUsLTI0IDM2OS41LC0zMCAzNjMuNSwtMzYgMzU3LjUsLTM2Ii8+DQo8dGV4dCB4bWw6c3BhY2U9InByZXNlcnZlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB4PSIzMDYuMzgiIHk9Ii0xMi45NSIgZm9udC1mYW1pbHk9IlRpbWVzIE5ldyBSb21hbixzZXJpZiIgZm9udC1zaXplPSIxNC4wMCIgZmlsbD0iIzAwZjVkNCI+YmMxcWN3YWRteS4uLnF4OWs8L3RleHQ+DQo8L2c+DQo8IS0tIDM0MXNzd3hQYXVxcng1WXo2cTRoUUVIZHZxU0xQWm1zbzEmIzQ1OyZndDtiYzFxY3dhZG15Y3Z6ZW4ycWtqbmdlMmhoZ3RndWxlcnNzeTU2cHF4OWsgLS0+DQo8ZyBpZD0iZWRnZTEwIiBjbGFzcz0iZWRnZSI+DQo8dGl0bGU+MzQxc3N3eFBhdXFyeDVZejZxNGhRRUhkdnFTTFBabXNvMSYjNDU7Jmd0O2JjMXFjd2FkbXljdnplbjJxa2puZ2UyaGhndGd1bGVyc3N5NTZwcXg5azwvdGl0bGU+DQo8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMwMGY1ZDQiIGQ9Ik05OC43LC01OS42QzExNC4xMiwtNTEuMjIgMTMzLjM4LC00MS45OCAxNTEuNzUsLTM2LjUgMTc3LjMyLC0yOC44OCAyMDYuMTYsLTI0LjM5IDIzMS45LC0yMS43NCIvPg0KPHBvbHlnb24gZmlsbD0iIzAwZjVkNCIgc3Ryb2tlPSIjMDBmNWQ0IiBwb2ludHM9IjIzMS45NywtMjUuMjUgMjQxLjU5LC0yMC44MyAyMzEuMzEsLTE4LjI4IDIzMS45NywtMjUuMjUiLz4NCjx0ZXh0IHhtbDpzcGFjZT0icHJlc2VydmUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9IjE4NS41IiB5PSItMzkuNyIgZm9udC1mYW1pbHk9IlRpbWVzIE5ldyBSb21hbixzZXJpZiIgZm9udC1zaXplPSIxNC4wMCIgZmlsbD0iI2NjY2NjYyI+MC4xMDM5IEJUQzwvdGV4dD4NCjwvZz4NCjwvZz4NCjwvc3ZnPg0K" alt="Transaction Flow Graph">
+            </div>
+            
+            </div>
+
+            <h2>Target Wallet Detailed Analysis</h2>
+            <div class="section-content">
+    
+        <div class="wallet-summary-card">
+            <h3>Wallet: 17TMc2UkVRSga2yYvuxSD9Q1XyB2EPRjTF (Depth: 0)</h3>
+            <p><strong>Current Balance:</strong> 0.00000000 BTC</p>
+            <p><strong>Total Transactions:</strong> 3</p>
+            <p><strong>Last Transaction:</strong> N/A</p>
+            <p><strong>Inferred Type:</strong> Personal Wallet</p>
+            <p><strong>Total Incoming (traced):</strong> 1.26686348 BTC</p>
+            <p><strong>Total Outgoing (traced):</strong> 1.26678083 BTC</p>
+            <p><strong>Associated Ransomware Family:</strong> Netwalker (Mailto)</p>
+            <p><strong>Chainabuse Reports:</strong> 2 reports</p>
+            
+            <h4>Reputation Flags:</h4>
+            <ul>
+    <li>Address found in local ransomware database.</li><li>Address found in Ransomwhere.re API.</li><li>Found 2 scam report(s) on Chainabuse.</li><li>Chainabuse report indicates Ransomware activity (Category: Ransomware).</li><li>Chainabuse report indicates Ransomware activity (Category: Ransomware).</li><li>Dormant for over a year.</li>
+            </ul>
+    
+            <h4>Detailed Chainabuse Reports:</h4>
+        
+                <div class="chainabuse-report-card">
+                    <h5>Report 1: Ransomware</h5>
+                    <p><strong>Description:</strong> Address reported to Netwalker ransomware family. According to court documents, NetWalker operates as a so-called ransomware-as-a-service model, featuring “developers” and “affiliates.” Developers are responsible for creating and updating the ransomware and making it available to affiliates. Affiliates are responsible for identifying and attacking high-value victims with the ransomware, according to the affidavit. After a victim pays, developers and affiliates split the ransom.</p>
+                    <p><strong>Submitted By:</strong> h8ransomware</p>
+                    <p><strong>Submitted Date:</strong> Apr 4, 2022</p>
+                    <p><strong>Reported Addresses:</strong> 1DTE5x3Rjn2q75HjX6hiu8CQwEGqe6wQ4s, 17TMc2UkVRSga2yYvuxSD9Q1XyB2EPRjTF</p>
+                </div>
+            
+                <div class="chainabuse-report-card">
+                    <h5>Report 2: Ransomware</h5>
+                    <p><strong>Description:</strong> Address reported at Ransomwhere, an open, crowdsourced ransomware payment tracker.</p>
+                    <p><strong>Submitted By:</strong> Ransomwhe.re</p>
+                    <p><strong>Submitted Date:</strong> Jul 8, 2021</p>
+                    <p><strong>Reported Addresses:</strong> 17TMc2UkVRSga2yYvuxSD9Q1XyB2EPRjTF</p>
+                </div>
+            
+        </div>
+    </div>
+    
+            <h2>Involved Wallets Summary</h2>
+            <div class="section-content">
+                <p>Below is a summary of all wallets involved in the traced transaction flow, categorized by their reputation status. For non-target wallets, only basic reputation checks (ransomware databases and Chainabuse) are performed.</p>
+                
+                <h3>Directly Connected Wallets (Sent to or Received from Target)</h3>
+                <ul class="wallet-list-summary">
+    
+                    <li>
+                        <span class="address">14oFeithByDgKAqwmtoQ6DHp44nKK3WBZM</span>
+                        <span class="flags">
+                            Received 0.15377036 BTC from target
+                        </span>
+                    </li>
+            
+                    <li>
+                        <span class="address">1DT3MuQrG7JY5hrMwtsEghukq6nBLHq6gr</span>
+                        <span class="flags">
+                            Received 1.11301047 BTC from target
+                        </span>
+                    </li>
+            
+                    <li>
+                        <span class="address">3EwqpC9RxVV5WMjN4SPF4juz7fuEKQQ4Zi</span>
+                        <span class="flags">
+                            Sent 0.43577930 BTC to target
+                        </span>
+                    </li>
+            
+                    <li>
+                        <span class="address">341sswxPauqrx5Yz6q4hQEHdvqSLPZmso1</span>
+                        <span class="flags">
+                            Sent 0.83108418 BTC to target
+                        </span>
+                    </li>
+            
+                </ul>
+
+                <h3>Flagged Wallets (Ransomware, Suspicious, or Chainabuse Reports)</h3>
+                <ul class="wallet-list-summary">
+    
+                    <li>
+                        <span class="address">17TMc2UkVRSga2yYvuxSD9Q1XyB2EPRjTF</span>
+                        <span class="flags">Address found in local ransomware database., Address found in Ransomwhere.re API., Found 2 scam report(s) on Chainabuse., Chainabuse report indicates Ransomware activity (Category: Ransomware)., Chainabuse report indicates Ransomware activity (Category: Ransomware)., Dormant for over a year.</span>
+                    </li>
+            
+                </ul>
+
+                <h3>Unflagged Wallets (No Known Issues)</h3>
+                <ul class="wallet-list-summary">
+    
+                        <li>
+                            <span class="address">14oFeithByDgKAqwmtoQ6DHp44nKK3WBZM</span>
+                            <span class="flags">Clean</span>
+                        </li>
+                
+                        <li>
+                            <span class="address">1DT3MuQrG7JY5hrMwtsEghukq6nBLHq6gr</span>
+                            <span class="flags">Clean</span>
+                        </li>
+                
+                        <li>
+                            <span class="address">3EwqpC9RxVV5WMjN4SPF4juz7fuEKQQ4Zi</span>
+                            <span class="flags">Clean</span>
+                        </li>
+                
+                        <li>
+                            <span class="address">bc1q98z5gcxan998h0uem0y4y4qtmm45xk4r2e5m9p</span>
+                            <span class="flags">Clean</span>
+                        </li>
+                
+                        <li>
+                            <span class="address">1DgLhGeJfoUkkXdYNVf7SNckX5ST5taPVo</span>
+                            <span class="flags">Clean</span>
+                        </li>
+                
+                        <li>
+                            <span class="address">bc1q9dd8k6jtdsc7yrefk0ythmhpensn22m26ge7rl</span>
+                            <span class="flags">Clean</span>
+                        </li>
+                
+                        <li>
+                            <span class="address">341sswxPauqrx5Yz6q4hQEHdvqSLPZmso1</span>
+                            <span class="flags">Clean</span>
+                        </li>
+                
+                        <li>
+                            <span class="address">bc1qcwadmycvzen2qkjnge2hhgtgulerssy56pqx9k</span>
+                            <span class="flags">Clean</span>
+                        </li>
+                
+                </ul>
+            </div>
+        </div>
+        <footer class="xeno-footer">
+            <p>&copy; 2025 XenoByte Threat Intelligence. All rights reserved.</p>
+            <p>Data from various public and open-source intelligence feeds.</p>
+        </footer>
+        <script>
+            function toggleTheme() {
+                document.body.classList.toggle('light-theme');
+                let isLight = document.body.classList.contains('light-theme');
+                localStorage.setItem('theme', isLight ? 'light' : 'dark');
+                document.getElementById('theme-toggle-button').textContent = isLight ? 'Dark Mode' : 'Light Mode';
+            }
+
+            // Apply theme on load
+            document.addEventListener('DOMContentLoaded', (event) => {
+                if (localStorage.getItem('theme') === 'light') {
+                    document.body.classList.add('light-theme');
+                    document.getElementById('theme-toggle-button').textContent = 'Dark Mode';
+                } else {
+                    document.getElementById('theme-toggle-button').textContent = 'Light Mode';
+                }
+            });
+        </script>
+    </body>
+    </html>
+    
