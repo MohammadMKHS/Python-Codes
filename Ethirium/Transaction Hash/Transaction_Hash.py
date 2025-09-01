@@ -569,7 +569,7 @@ th {{
 """
     return html
 
-def write_output_report(html_content, tx_hash, open_in_browser=True, output_json_data=None):
+def write_output_report(html_content, tx_hash, open_in_browser=True, output_json_data=None, output_stream=sys.stdout):
     """
     Write the HTML to a file named 'XenoByte_ETH_Transaction_Report_<short>_YYYYMMDD_HHMMSS.html'.
     Also optionally writes a JSON summary if output_json_data is provided.
@@ -581,15 +581,15 @@ def write_output_report(html_content, tx_hash, open_in_browser=True, output_json
     try:
         with open(file_name, 'w', encoding='utf-8') as f:
             f.write(html_content)
-        print(f"\n\n[+] Report generated successfully: {file_name}\n")
+        print(f"\n\n[+] Report generated successfully: {file_name}\n", file=output_stream)
         if open_in_browser:
             try:
                 webbrowser.open(f"file://{os.path.abspath(file_name)}")
-                print("[+] Transaction analysis complete. Report opened in browser.\n")
+                print("[+] Transaction analysis complete. Report opened in browser.\n", file=output_stream)
             except:
-                print("[!] Could not open in browser automatically. You can open the file manually.\n")
+                print("[!] Could not open in browser automatically. You can open the file manually.\n", file=output_stream)
     except Exception as e:
-        print(f"[!] Failed to write report: {e}\n")
+        print(f"[!] Failed to write report: {e}\n", file=output_stream)
 
     if output_json_data is not None:
         json_file = file_name.replace(".html", ".json")
@@ -597,7 +597,7 @@ def write_output_report(html_content, tx_hash, open_in_browser=True, output_json
             with open(json_file, 'w', encoding='utf-8') as jf:
                 json.dump(output_json_data, jf, indent=2)
         except Exception as e:
-            print(f"[!] Failed to write JSON output file: {e}\n")
+            print(f"[!] Failed to write JSON output file: {e}\n", file=output_stream)
 
 # --- Main Analysis ---
 
@@ -611,8 +611,11 @@ def analyze_eth_transaction(tx_hash, output_json=False):
       5) Check local and remote ransomware sets
       6) Build a report (HTML) with those details
     """
-    print(f"\n[+] Starting analysis for Ethereum transaction {tx_hash}...\n")
-    print(f"  Trying Etherscan for transaction {tx_hash}...\n")
+    # When output_json is True, redirect regular prints to stderr to keep stdout clean for JSON
+    output_stream = sys.stderr if output_json else sys.stdout
+    
+    print(f"\n[+] Starting analysis for Ethereum transaction {tx_hash}...\n", file=output_stream)
+    print(f"  Trying Etherscan for transaction {tx_hash}...\n", file=output_stream)
 
     # Prepare JSON output aggregator if needed
     report_data_output = {
@@ -624,7 +627,7 @@ def analyze_eth_transaction(tx_hash, output_json=False):
     # Step 1: Etherscan transaction
     tx_details = etherscan_get_tx(tx_hash)
     if tx_details is None:
-        print("[!] Unable to fetch transaction details. Aborting.")
+        print("[!] Unable to fetch transaction details. Aborting.", file=output_stream)
         return None
 
     # Step 2: Etherscan transaction receipt (via proxy)
@@ -658,9 +661,9 @@ def analyze_eth_transaction(tx_hash, output_json=False):
             
             with open(WALLETS_RANSOMWARE_FILE, 'r') as f:
                 local_ransomware_addresses = {line.strip() for line in f if line.strip()}
-            print(f"Loaded {len(local_ransomware_addresses)} addresses from {WALLETS_RANSOMWARE_FILE}")
+            print(f"Loaded {len(local_ransomware_addresses)} addresses from {WALLETS_RANSOMWARE_FILE}", file=output_stream)
         except Exception as e:
-            print(f"Failed to load local ransomware addresses: {e}")
+            print(f"Failed to load local ransomware addresses: {e}", file=output_stream)
             local_ransomware_addresses = set()
 
     remote_ransomware_addresses = fetch_ransomwhe_re_data()
@@ -704,7 +707,7 @@ def analyze_eth_transaction(tx_hash, output_json=False):
             report_data_output["receiver_wallets"] = receiver_wallets_processed
 
         except Exception as e:
-            print(f"[!] Failed to build JSON output: {e}")
+            print(f"[!] Failed to build JSON output: {e}", file=output_stream)
 
     # Step 7: build HTML report
     html_report = build_html_report(
@@ -723,8 +726,9 @@ def analyze_eth_transaction(tx_hash, output_json=False):
     write_output_report(
         html_content=html_report,
         tx_hash=tx_hash,
-        open_in_browser=True,
-        output_json_data=report_data_output if output_json else None
+        open_in_browser=not output_json,  # Don't open browser when outputting JSON
+        output_json_data=report_data_output if output_json else None,
+        output_stream=output_stream
     )
 
     # For API usage: print JSON to stdout when --json flag is used
