@@ -5,7 +5,7 @@ import subprocess
 import sys
 from typing import Dict, Any
 
-from fastapi import FastAPI, Query, HTTPException, Security
+from fastapi import FastAPI, APIRouter, Query, HTTPException, Security, status
 from fastapi.security.api_key import APIKeyHeader
 
 # --- IMPORTANT: Configure Paths to your scripts ---
@@ -14,6 +14,10 @@ from fastapi.security.api_key import APIKeyHeader
 TRANSACTION_HASH_SCRIPT_PATH = "./Transaction Hash/Transaction_Hash.py"
 WALLET_FORENSIC_SCRIPT_PATH = "./Wallet_ID_Monitor_Forensic/Wallet_ID_Monitor_Forensic.py"
 WALLET_REPUTATION_SCRIPT_PATH = "./Wallet_Reputation/XenoByte_Wallet_Checker.py"
+
+# --- Define the APIRouter for this module ---
+# This router will be included by the main Xenobyte API
+ethereum_router = APIRouter(tags=["Ethereum Intelligence"])
 
 # --- API Key Configuration ---
 API_KEY_NAME = "X-API-Key"
@@ -106,10 +110,9 @@ async def run_script_subprocess(script_path: str, args: list) -> Dict[str, Any]:
 
 # --- API Endpoints ---
 
-@app.get("/api/ethereum/transaction-analysis", response_model=Dict[str, Any], summary="Perform Ethereum Transaction Hash Analysis")
+@ethereum_router.get("/transaction-analysis", response_model=Dict[str, Any], summary="Perform Ethereum Transaction Hash Analysis")
 async def analyze_ethereum_transaction_hash_endpoint(
-    tx_hash: str = Query(..., description="The Ethereum transaction hash for analysis (e.g., '0x123...abc')."),
-    api_key: str = Security(get_api_key)
+    tx_hash: str = Query(..., description="The Ethereum transaction hash for analysis (e.g., '0x123...abc').")
 ):
     """
     Performs an analysis on a specified Ethereum transaction hash.
@@ -122,11 +125,10 @@ async def analyze_ethereum_transaction_hash_endpoint(
     return await run_script_subprocess(TRANSACTION_HASH_SCRIPT_PATH, [tx_hash])
 
 
-@app.get("/api/ethereum/wallet-forensic", response_model=Dict[str, Any], summary="Perform Ethereum Wallet Forensic Analysis")
+@ethereum_router.get("/wallet-forensic", response_model=Dict[str, Any], summary="Perform Ethereum Wallet Forensic Analysis")
 async def perform_ethereum_forensic_analysis_endpoint(
     wallet_address: str = Query(..., description="The Ethereum wallet address for forensic analysis (e.g., '0xabc...123')."),
-    max_depth: int = Query(2, description="Maximum tracing depth (e.g., 1, 2, 3, or -1 for full depth). Default is 2."),
-    api_key: str = Security(get_api_key)
+    max_depth: int = Query(2, description="Maximum tracing depth (e.g., 1, 2, 3, or -1 for full depth). Default is 2.")
 ):
     """
     Performs a forensic analysis on a specified Ethereum wallet address.
@@ -142,10 +144,9 @@ async def perform_ethereum_forensic_analysis_endpoint(
     return await run_script_subprocess(WALLET_FORENSIC_SCRIPT_PATH, [wallet_address, "--depth", str(max_depth)])
 
 
-@app.get("/api/ethereum/wallet-reputation", response_model=Dict[str, Any], summary="Check Ethereum Wallet Reputation")
+@ethereum_router.get("/wallet-reputation", response_model=Dict[str, Any], summary="Check Ethereum Wallet Reputation")
 async def check_ethereum_wallet_reputation_endpoint(
-    wallet_address: str = Query(..., description="The Ethereum wallet address to check for reputation."),
-    api_key: str = Security(get_api_key)
+    wallet_address: str = Query(..., description="The Ethereum wallet address to check for reputation.")
 ):
     """
     Checks the reputation of a specified Ethereum wallet address.
@@ -157,6 +158,9 @@ async def check_ethereum_wallet_reputation_endpoint(
     print(f"\n[+] API Request received for Ethereum wallet reputation check: {wallet_address}", file=sys.stderr)
     return await run_script_subprocess(WALLET_REPUTATION_SCRIPT_PATH, [wallet_address])
 
+
+# Include the router in the main app
+app.include_router(ethereum_router, prefix="/ethereum")
 
 if __name__ == '__main__':
     import uvicorn

@@ -115,8 +115,7 @@ apt_router = APIRouter(prefix="/apt", tags=["APT Threat Intelligence"])
 
 @apt_router.get("/", response_model=Dict[str, Any], summary="Get APT Group Threat Intelligence")
 async def get_apt_data(
-    group: str = Query(..., description="The name of the APT group (e.g., APT28, Fancy Bear, Lazarus Group)."),
-    api_key: str = Security(get_api_key)
+    group: str = Query(..., description="The name of the APT group (e.g., APT28, Fancy Bear, Lazarus Group).")
 ):
     """
     Retrieves comprehensive threat intelligence for a specified APT group.
@@ -203,8 +202,7 @@ crypto_router = APIRouter(prefix="/crypto", tags=["Cryptocurrency Tracer"])
 
 @crypto_router.get("/trace", response_model=Dict[str, Any], summary="Trace Cryptocurrency Address or Transaction")
 async def trace_crypto(
-    input_string: str = Query(..., description="The cryptocurrency address or transaction hash to trace."),
-    api_key: str = Security(get_api_key)
+    input_string: str = Query(..., description="The cryptocurrency address or transaction hash to trace.")
 ):
     """
     Traces a given cryptocurrency address or transaction hash and returns detailed information.
@@ -361,8 +359,7 @@ hash_checker_router = APIRouter(prefix="/hash", tags=["Hash Reputation Checker"]
 
 @hash_checker_router.get("/reputation", response_model=Dict[str, Any], summary="Check File Hash Reputation")
 async def check_hash(
-    hash_value: str = Query(..., description="The file hash (MD5, SHA1, or SHA256) to check."),
-    api_key: str = Security(get_api_key)
+    hash_value: str = Query(..., description="The file hash (MD5, SHA1, or SHA256) to check.")
 ):
     """
     Checks the reputation of a given file hash using AlienVault OTX.
@@ -398,8 +395,7 @@ file_scanner_router = APIRouter(prefix="/file", tags=["File Scanner"])
 
 @file_scanner_router.post("/scan", response_model=Dict[str, Any], summary="Upload and Scan File for Reputation")
 async def scan_file(
-    file: UploadFile = File(..., description="The file to upload and scan."),
-    api_key: str = Security(get_api_key)
+    file: UploadFile = File(..., description="The file to upload and scan.")
 ):
     """
     Accepts a file upload, calculates its MD5, SHA1, and SHA256 hashes,
@@ -476,3 +472,14 @@ app.include_router(apt_router)
 app.include_router(crypto_router)
 app.include_router(hash_checker_router)
 app.include_router(file_scanner_router)
+
+# --- UNIFIED PUBLIC ROUTER FOR MASTER API IMPORT ---
+# Create a unified router that combines all the individual routers
+# This allows the master API to import and include all public endpoints
+public_router = APIRouter(tags=["Public Intelligence"])
+
+# Include all the individual routers in the public router
+public_router.include_router(apt_router)
+public_router.include_router(crypto_router)
+public_router.include_router(hash_checker_router)
+public_router.include_router(file_scanner_router)

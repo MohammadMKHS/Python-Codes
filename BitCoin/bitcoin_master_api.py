@@ -5,7 +5,7 @@ import subprocess
 import sys
 from typing import Dict, Any
 
-from fastapi import FastAPI, Query, HTTPException, Security
+from fastapi import FastAPI, Query, HTTPException, Security, APIRouter
 from fastapi.security.api_key import APIKeyHeader
 
 # --- IMPORTANT: Configure Paths to your scripts ---
@@ -28,6 +28,9 @@ app = FastAPI(
     description="A consolidated API for various Bitcoin intelligence tasks: transaction analysis, wallet forensic tracing, and wallet reputation checking.",
     version="1.0.0"
 )
+
+# Create Bitcoin router for master API import
+bitcoin_router = APIRouter(tags=["Bitcoin Intelligence"])
 
 @app.on_event("startup")
 async def startup_event():
@@ -106,10 +109,9 @@ async def run_script_subprocess(script_path: str, args: list) -> Dict[str, Any]:
 
 # --- API Endpoints ---
 
-@app.get("/api/bitcoin/transaction-analysis", response_model=Dict[str, Any], summary="Perform Bitcoin Transaction Hash Analysis")
+@bitcoin_router.get("/transaction-analysis", response_model=Dict[str, Any], summary="Perform Bitcoin Transaction Hash Analysis")
 async def analyze_transaction_hash_endpoint(
-    tx_hash: str = Query(..., description="The Bitcoin transaction hash for analysis."),
-    api_key: str = Security(get_api_key)
+    tx_hash: str = Query(..., description="The Bitcoin transaction hash for analysis.")
 ):
     """
     Performs an analysis on a specified Bitcoin transaction hash.
@@ -122,11 +124,10 @@ async def analyze_transaction_hash_endpoint(
     return await run_script_subprocess(TRANSACTION_HASH_SCRIPT_PATH, [tx_hash])
 
 
-@app.get("/api/bitcoin/wallet-forensic", response_model=Dict[str, Any], summary="Perform Bitcoin Wallet Forensic Analysis")
+@bitcoin_router.get("/wallet-forensic", response_model=Dict[str, Any], summary="Perform Bitcoin Wallet Forensic Analysis")
 async def perform_bitcoin_forensic_analysis_endpoint(
     wallet_address: str = Query(..., description="The Bitcoin wallet address for forensic analysis."),
-    max_depth: int = Query(2, description="Maximum tracing depth (e.g., 1, 2, 3, or -1 for full depth). Default is 2."),
-    api_key: str = Security(get_api_key)
+    max_depth: int = Query(2, description="Maximum tracing depth (e.g., 1, 2, 3, or -1 for full depth). Default is 2.")
 ):
     """
     Performs a forensic analysis on a specified Bitcoin wallet address.
@@ -142,10 +143,9 @@ async def perform_bitcoin_forensic_analysis_endpoint(
     return await run_script_subprocess(WALLET_FORENSIC_SCRIPT_PATH, [wallet_address, "--depth", str(max_depth)])
 
 
-@app.get("/api/bitcoin/wallet-reputation", response_model=Dict[str, Any], summary="Check Bitcoin Wallet Reputation")
+@bitcoin_router.get("/wallet-reputation", response_model=Dict[str, Any], summary="Check Bitcoin Wallet Reputation")
 async def check_bitcoin_wallet_reputation_endpoint(
-    wallet_address: str = Query(..., description="The Bitcoin wallet address to check for reputation."),
-    api_key: str = Security(get_api_key)
+    wallet_address: str = Query(..., description="The Bitcoin wallet address to check for reputation.")
 ):
     """
     Checks the reputation of a specified Bitcoin wallet address.
@@ -157,6 +157,9 @@ async def check_bitcoin_wallet_reputation_endpoint(
     print(f"\n[+] API Request received for wallet reputation check: {wallet_address}", file=sys.stderr)
     return await run_script_subprocess(WALLET_REPUTATION_SCRIPT_PATH, [wallet_address])
 
+
+# Include the router in the main app
+app.include_router(bitcoin_router, prefix="/bitcoin")
 
 if __name__ == '__main__':
     import uvicorn
