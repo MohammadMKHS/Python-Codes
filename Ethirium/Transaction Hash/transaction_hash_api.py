@@ -5,10 +5,11 @@ import secrets
 import os
 from datetime import datetime, timezone, timedelta
 
-# Corrected imports to match the function names in Transaction_Hash.py
+# Import functions from your existing Transaction Hash.py script
+# Assuming Transaction_Hash.py is in the same directory or accessible via PYTHONPATH
 from Transaction_Hash import (
     get_transaction_details_multi_source,
-    generate_html_report,
+    generate_transaction_report,
     load_local_ransomware_addresses,
     fetch_ransomwhere_data,
     get_simulated_reputation_flags,
@@ -22,9 +23,12 @@ app = FastAPI(
 )
 
 # --- API Key Configuration ---
+# In a real-world scenario, this key should be loaded securely (e.g., from environment variables, a vault)
+# and not hardcoded. For this demonstration, a random key is generated on startup.
 API_KEY_NAME = "X-API-Key"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
 
+# Generate a random API key for demonstration purposes
 GENERATED_API_KEY = secrets.token_hex(32)
 
 @app.on_event("startup")
@@ -92,7 +96,7 @@ async def get_transaction_analysis(
         amount_wei = sender_wallet.get('prev_out', {}).get('value', 0)
         
         reputation_flags = get_simulated_reputation_flags(sender_address)
-        chainabuse_info = get_simulated_chainabuse_reports(sender_address) # Corrected function call
+        chainabuse_info = get_simulated_chainabuse_reports(sender_address)
 
         processed_senders.append({
             "address": sender_address,
@@ -110,7 +114,7 @@ async def get_transaction_analysis(
         amount_wei = receiver_wallet.get('value', 0)
 
         reputation_flags = get_simulated_reputation_flags(receiver_address)
-        chainabuse_info = get_simulated_chainabuse_reports(receiver_address) # Corrected function call
+        chainabuse_info = get_simulated_chainabuse_reports(receiver_address)
 
         processed_receivers.append({
             "address": receiver_address,
@@ -137,8 +141,7 @@ async def get_transaction_analysis(
 
     if generate_html_report:
         try:
-            # Corrected function call and arguments
-            html_report_content = generate_html_report(transaction_details, tx_hash)
+            html_report_content = generate_transaction_report(transaction_details, tx_hash)
             response_data["html_report"] = html_report_content
         except Exception as e:
             print(f"[ERROR] Failed to generate HTML report: {e}")
@@ -151,3 +154,4 @@ if __name__ == "__main__":
     # To run: uvicorn transaction_hash_api:app --reload --port 8001
     # Ensure you replace 'transaction_hash_api' with the actual filename if different.
     uvicorn.run(app, host="0.0.0.0", port=8001)
+
