@@ -1,0 +1,304 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>XenoByte Transaction Report - 0x1b5e7141...</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap');
+            :root {
+                --bg-color: #0a0a0a;
+                --box-color: #121212;
+                --text-color: #00f5d4; /* Your accent greenish-blue */
+                --accent: #00ff88;    /* Your bright green accent */
+                --footer-bg: #111;
+                --footer-text: #ccc;
+                --input-bg: #1e1e1e;
+                --input-border: #00f5d4;
+            }
+            body.light-theme {
+                --bg-color: #f9f9f9;
+                --box-color: #ffffff;
+                --text-color: #111;
+                --accent: #00c47a;
+                --footer-bg: #eaeaea;
+                --footer-text: #333;
+                --input-bg: #f0f0f0;
+                --input-border: #00c47a;
+            }
+            html, body {
+                min-height: 100vh;
+                margin: 0;
+                padding: 0;
+                font-family: 'Roboto', sans-serif;
+                background-color: var(--bg-color);
+                color: var(--text-color);
+                display: flex;
+                flex-direction: column;
+                transition: background-color 0.4s, color 0.4s;
+            }
+            .header {
+                text-align: center;
+                padding: 20px;
+                background-color: var(--box-color);
+                border-bottom: 2px solid var(--accent);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                z-index: 10;
+                position: sticky;
+                top: 0;
+            }
+            h1 {
+                margin: 0;
+                color: var(--text-color);
+                font-family: 'Orbitron', sans-serif;
+                font-size: 2.5em;
+                text-shadow: 0 0 8px var(--accent);
+            }
+            .subtitle {
+                color: var(--footer-text);
+                font-size: 1.1em;
+                margin-top: 5px;
+            }
+            .content-section {
+                padding: 20px;
+                width: 90%;
+                margin: 20px auto;
+                background-color: var(--box-color);
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+                line-height: 1.6;
+                flex-grow: 1;
+                box-sizing: border-box;
+            }
+            @media (min-width: 1400px) {
+                .content-section {
+                    width: 80%;
+                }
+            }
+            @media (max-width: 768px) {
+                .content-section {
+                    width: 95%;
+                    padding: 15px;
+                }
+            }
+            .content-section h2, .content-section h3 {
+                color: var(--accent);
+                border-bottom: 1px solid var(--text-color);
+                padding-bottom: 10px;
+                margin-top: 30px;
+                margin-bottom: 20px;
+                font-family: 'Orbitron', sans-serif;
+            }
+            .content-section p, .content-section table {
+                margin-bottom: 10px;
+                color: var(--footer-text);
+            }
+            .content-section ul {
+                padding-left: 25px;
+                list-style: disc;
+                margin-top: 0;
+                margin-bottom: 0;
+            }
+            .content-section ul li {
+                margin-bottom: 8px;
+                padding-top: 2px;
+                padding-bottom: 2px;
+            }
+            .content-section a {
+                color: var(--text-color);
+                text-decoration: none;
+            }
+            .content-section a:hover {
+                color: var(--accent);
+                text-decoration: underline;
+            }
+            .xeno-footer {
+                flex-shrink: 0;
+                background: var(--footer-bg);
+                color: var(--footer-text);
+                text-align: center;
+                font-family: 'Roboto', sans-serif;
+                font-size: 0.95rem;
+                border-top: 2px solid var(--accent);
+                padding: 20px 10px;
+                width: 100%;
+                margin-top: 40px;
+            }
+            .xeno-footer a {
+                color: var(--text-color);
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+            .xeno-footer a:hover {
+                color: var(--accent);
+            }
+            .toggle-theme {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background-color: var(--box-color);
+                color: var(--text-color);
+                border: 2px solid var(--text-color);
+                border-radius: 30px;
+                padding: 6px 16px;
+                font-size: 0.9rem;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                z-index: 1000;
+            }
+            .toggle-theme:hover {
+                background-color: var(--accent);
+                color: #000;
+                border-color: var(--accent);
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+            }
+            th, td {
+                border: 1px solid var(--text-color);
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: var(--accent);
+                color: var(--box-color);
+                font-family: 'Orbitron', sans-serif;
+            }
+            .error-message {
+                color: #ff6347;
+                font-weight: bold;
+            }
+            .threat-detected {
+                color: #ff4747;
+                font-weight: bold;
+            }
+            .wallet-summary-card {
+                background-color: #1a1a1a;
+                border: 1px solid var(--text-color);
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+            .wallet-summary-card h4 {
+                color: var(--accent);
+                margin-top: 0;
+                margin-bottom: 10px;
+                font-family: 'Orbitron', sans-serif;
+                font-size: 1.1em;
+            }
+            .wallet-summary-card p {
+                margin-bottom: 5px;
+                color: var(--footer-text);
+            }
+            .wallet-summary-card strong {
+                color: var(--text-color);
+            }
+            .wallet-summary-card .red-flag {
+                color: #ff4747;
+                font-weight: bold;
+            }
+            .detailed-report-section {
+                margin-top: 15px;
+            }
+            .detailed-report-section h5 {
+                color: #00ff88;
+                margin-top: 0;
+                margin-bottom: 10px;
+                font-family: 'Orbitron', sans-serif;
+                font-size: 1.2em;
+            }
+            .detailed-report-section p {
+                margin-bottom: 5px;
+                color: #ccc;
+            }
+            .detailed-report-section strong {
+                color: #00f5d4;
+            }
+            .chainabuse-report-card {
+                background-color: #1a1a1a;
+                border: 1px solid #00f5d4;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+        </style>
+    </head>
+    <body class="light-theme">
+        <button id="theme-toggle-button" class="toggle-theme" onclick="toggleTheme()">Dark Mode</button>
+        <div class="header">
+            <h1>XenoByte Transaction Report</h1>
+            <p class="subtitle">Analysis for Transaction Hash: <strong>0x1b5e71412004cc38dc711919c4f307d73a64a80ef84e39db84b341f094071af0</strong></p>
+            <p class="subtitle">Generated: 2025-09-01 23:42:25 UTC</p>
+        </div>
+        <div class="content-section">
+            <h2>Transaction Summary</h2>
+            <div class="section-content">
+                <p><strong>Time (UTC):</strong> 2019-01-12 09:12:36 UTC</p>
+                <p><strong>Block Height:</strong> 7052805</p>
+                <p><strong>Transaction Fee:</strong> 0.00086100 ETH</p>
+                <p><strong>Size:</strong> N/A bytes</p>
+                <p><strong>Total Input Value:</strong> 2.23774411 ETH</p>
+                <p><strong>Total Output Value:</strong> 2.23774411 ETH</p>
+            </div>
+            <h2>Sender Wallets (1)</h2>
+            <div class="section-content">
+    
+                <div class="wallet-summary-card">
+                    <h4>Sender Address: <a href="https://chainabuse.com/address/0xbde430f54a63016d8a5f31f243761653728086a2" target="_blank">0xbde430f54a63016d8a5f31f243761653728086a2</a></h4>
+                    <p><strong>Amount Sent:</strong> 2.23774411 ETH</p>
+                    <p><strong>Inferred Type:</strong> Personal Wallet</p>
+                    <p><strong>Chainabuse Reports:</strong> <a href="https://chainabuse.com/address/0xbde430f54a63016d8a5f31f243761653728086a2" target="_blank">0 reports</a></p>
+                    <p><strong>Reputation Flags:</strong></p>
+                    <ul>
+                        <li>No known reputation flags.</li>
+                    </ul>
+                    
+                </div>
+        
+            </div>
+            <h2>Receiver Wallets (1)</h2>
+            <div class="section-content">
+    
+                <div class="wallet-summary-card">
+                    <h4>Receiver Address: <a href="https://chainabuse.com/address/0x95f1d0c9a5aae8c25624e611ed88ab50b2ab3d70" target="_blank">0x95f1d0c9a5aae8c25624e611ed88ab50b2ab3d70</a></h4>
+                    <p><strong>Amount Received:</strong> 2.23774411 ETH</p>
+                    <p><strong>Inferred Type:</strong> Personal Wallet</p>
+                    <p><strong>Chainabuse Reports:</strong> <a href="https://chainabuse.com/address/0x95f1d0c9a5aae8c25624e611ed88ab50b2ab3d70" target="_blank">0 reports</a></p>
+                    <p><strong>Reputation Flags:</strong></p>
+                    <ul>
+                        <li>No known reputation flags.</li>
+                    </ul>
+                    
+                </div>
+        
+            </div>
+        </div>
+        <footer class="xeno-footer">
+            <p>&copy; 2025 XenoByte Threat Intelligence. All rights reserved.</p>
+            <p>Data from various public and open-source intelligence feeds.</p>
+        </footer>
+        <script>
+            function toggleTheme() {
+                document.body.classList.toggle('light-theme');
+                let isLight = document.body.classList.contains('light-theme');
+                localStorage.setItem('theme', isLight ? 'light' : 'dark');
+                document.getElementById('theme-toggle-button').textContent = isLight ? 'Dark Mode' : 'Light Mode';
+            }
+            document.addEventListener('DOMContentLoaded', (event) => {
+                if (localStorage.getItem('theme') === 'light') {
+                    document.body.classList.add('light-theme');
+                    document.getElementById('theme-toggle-button').textContent = 'Dark Mode';
+                } else {
+                    document.getElementById('theme-toggle-button').textContent = 'Light Mode';
+                }
+            });
+        </script>
+    </body>
+    </html>
+    

@@ -4,8 +4,6 @@ import time
 import os
 import webbrowser
 from datetime import datetime, timezone, timedelta
-import argparse # Import argparse
-import sys # Import sys for stderr
 
 # --- Configuration ---
 RANSOMWARE_EXPORT_URL = "https://api.ransomwhe.re/export"
@@ -29,9 +27,8 @@ ransomware_api_addresses = set()
 local_ransomware_addresses = set()
 ransomware_api_data = []
 
-def load_local_ransomware_addresses(output_to_stderr=False):
+def load_local_ransomware_addresses():
     """Loads known ransomware addresses from a local file."""
-    output_stream = sys.stderr if output_to_stderr else sys.stdout
     global local_ransomware_addresses
     if not local_ransomware_addresses:
         try:
@@ -46,19 +43,18 @@ def load_local_ransomware_addresses(output_to_stderr=False):
             
             with open(WALLETS_RANSOMWARE_FILE, 'r') as f:
                 local_ransomware_addresses = {line.strip() for line in f if line.strip()}
-            print(f"Loaded {len(local_ransomware_addresses)} addresses from {WALLETS_RANSOMWARE_FILE}", file=output_stream)
+            print(f"Loaded {len(local_ransomware_addresses)} addresses from {WALLETS_RANSOMWARE_FILE}")
         except FileNotFoundError:
-            print(f"Warning: {WALLETS_RANSOMWARE_FILE} not found. Skipping local ransomware check.", file=output_stream)
+            print(f"Warning: {WALLETS_RANSOMWARE_FILE} not found. Skipping local ransomware check.")
         except Exception as e:
-            print(f"Error loading {WALLETS_RANSOMWARE_FILE}: {e}", file=output_stream)
+            print(f"Error loading {WALLETS_RANSOMWARE_FILE}: {e}")
     return local_ransomware_addresses
 
-def fetch_ransomwhere_data(output_to_stderr=False):
+def fetch_ransomwhere_data():
     """Fetches and parses data from the ransomwhe.re API."""
-    output_stream = sys.stderr if output_to_stderr else sys.stdout
     global ransomware_api_addresses, ransomware_api_data
     if not ransomware_api_addresses:
-        print(f"Fetching data from {RANSOMWARE_EXPORT_URL}...", file=output_stream)
+        print(f"Fetching data from {RANSOMWARE_EXPORT_URL}...")
         try:
             response = requests.get(RANSOMWARE_EXPORT_URL, timeout=15)
             response.raise_for_status()
@@ -66,20 +62,19 @@ def fetch_ransomwhere_data(output_to_stderr=False):
             if data and "result" in data and isinstance(data["result"], list):
                 ransomware_api_data = data["result"]
                 ransomware_api_addresses = {entry["address"] for entry in ransomware_api_data if "address" in entry}
-                print(f"Fetched {len(ransomware_api_addresses)} addresses from ransomwhe.re API.", file=output_stream)
+                print(f"Fetched {len(ransomware_api_addresses)} addresses from ransomwhe.re API.")
             else:
-                print(f"Warning: Unexpected data format from {RANSOMWARE_EXPORT_URL}", file=output_stream)
+                print(f"Warning: Unexpected data format from {RANSOMWARE_EXPORT_URL}")
         except requests.exceptions.RequestException as e:
-            print(f"Error fetching from {RANSOMWARE_EXPORT_URL}: {e}", file=output_stream)
+            print(f"Error fetching from {RANSOMWARE_EXPORT_URL}: {e}")
         except json.JSONDecodeError as e:
-            print(f"Error decoding JSON from {RANSOMWARE_EXPORT_URL}: {e}", file=output_stream)
+            print(f"Error decoding JSON from {RANSOMWARE_EXPORT_URL}: {e}")
     return ransomware_api_addresses, ransomware_api_data
 
-def get_transaction_details_blockchain_info(tx_hash, output_to_stderr=False):
+def get_transaction_details_blockchain_info(tx_hash):
     """Fetches raw transaction data from blockchain.info."""
-    output_stream = sys.stderr if output_to_stderr else sys.stdout
     url = BLOCKCHAIN_INFO_RAW_TX_API.format(tx_hash=tx_hash)
-    print(f"  Trying blockchain.info for transaction {tx_hash}...", file=output_stream)
+    print(f"  Trying blockchain.info for transaction {tx_hash}...")
     try:
         response = requests.get(url, timeout=15)
         response.raise_for_status()
@@ -87,14 +82,13 @@ def get_transaction_details_blockchain_info(tx_hash, output_to_stderr=False):
         time.sleep(API_DELAY_SECONDS)
         return data
     except requests.exceptions.RequestException as e:
-        print(f"  blockchain.info failed for {tx_hash}: {e}", file=output_stream)
+        print(f"  blockchain.info failed for {tx_hash}: {e}")
     return None
 
-def get_transaction_details_blockcypher(tx_hash, output_to_stderr=False):
+def get_transaction_details_blockcypher(tx_hash):
     """Fetches transaction data from BlockCypher."""
-    output_stream = sys.stderr if output_to_stderr else sys.stdout
     url = BLOCKCYPHER_TX_API.format(tx_hash=tx_hash)
-    print(f"  Trying BlockCypher for transaction {tx_hash}...", file=output_stream)
+    print(f"  Trying BlockCypher for transaction {tx_hash}...")
     try:
         response = requests.get(url, timeout=15)
         response.raise_for_status()
@@ -119,16 +113,15 @@ def get_transaction_details_blockcypher(tx_hash, output_to_stderr=False):
             "out": normalized_outputs
         }
     except requests.exceptions.RequestException as e:
-        print(f"  BlockCypher failed for {tx_hash}: {e}", file=output_stream)
+        print(f"  BlockCypher failed for {tx_hash}: {e}")
     except ValueError as e:
-        print(f"  BlockCypher data parsing error for {tx_hash}: {e}", file=output_stream)
+        print(f"  BlockCypher data parsing error for {tx_hash}: {e}")
     return None
 
-def get_transaction_details_blockchair(tx_hash, output_to_stderr=False):
+def get_transaction_details_blockchair(tx_hash):
     """Fetches transaction data from Blockchair."""
-    output_stream = sys.stderr if output_to_stderr else sys.stdout
     url = BLOCKCHAIR_TX_API.format(tx_hash=tx_hash)
-    print(f"  Trying Blockchair for transaction {tx_hash}...", file=output_stream)
+    print(f"  Trying Blockchair for transaction {tx_hash}...")
     try:
         response = requests.get(url, timeout=15)
         response.raise_for_status()
@@ -163,17 +156,16 @@ def get_transaction_details_blockchair(tx_hash, output_to_stderr=False):
             })
         return normalized_data
     except requests.exceptions.RequestException as e:
-        print(f"  Blockchair failed for {tx_hash}: {e}", file=output_stream)
+        print(f"  Blockchair failed for {tx_hash}: {e}")
     except json.JSONDecodeError as e:
-        print(f"  Blockchair JSON decoding error for {tx_hash}: {e}", file=output_stream)
+        print(f"  Blockchair JSON decoding error for {tx_hash}: {e}")
     return None
 
-def get_transaction_details_multi_source(tx_hash, output_to_stderr=False):
+def get_transaction_details_multi_source(tx_hash):
     """
     Attempts to fetch transaction data from multiple sources.
     Returns the first successful result.
     """
-    output_stream = sys.stderr if output_to_stderr else sys.stdout
     sources = [
         get_transaction_details_blockchain_info,
         get_transaction_details_blockcypher,
@@ -181,11 +173,11 @@ def get_transaction_details_multi_source(tx_hash, output_to_stderr=False):
     ]
     
     for source_func in sources:
-        data = source_func(tx_hash, output_to_stderr) # Pass output_to_stderr to sub-functions
+        data = source_func(tx_hash)
         if data:
             return data
     
-    print(f"  Failed to get comprehensive transaction info for {tx_hash} from all sources.", file=output_stream)
+    print(f"  Failed to get comprehensive transaction info for {tx_hash} from all sources.")
     return None
 
 # --- Simulated Data Functions ---
@@ -284,13 +276,12 @@ def get_simulated_chainabuse_reports(address: str) -> dict:
         "reports": detailed_reports
     }
 
-def generate_transaction_report(transaction_data, tx_hash, output_to_stderr=False):
+def generate_transaction_report(transaction_data, tx_hash):
     """Generates an HTML report for a given transaction."""
-    output_stream = sys.stderr if output_to_stderr else sys.stdout
     
     # Load ransomware data once for all checks
-    load_local_ransomware_addresses(output_to_stderr)
-    fetch_ransomwhere_data(output_to_stderr)
+    load_local_ransomware_addresses()
+    fetch_ransomwhere_data()
 
     report_time_utc = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
 
@@ -723,127 +714,28 @@ def generate_transaction_report(transaction_data, tx_hash, output_to_stderr=Fals
 # --- Main Execution Block ---
 if __name__ == "__main__":
     # Ensure os is imported as it's used directly in load_local_ransomware_addresses
-    import os
-    import argparse # Added: Import argparse
+    import os 
 
-    parser = argparse.ArgumentParser(description="Bitcoin Transaction Hash Analysis.")
-    parser.add_argument("tx_hash", nargs='?', help="The Bitcoin transaction hash for analysis.", default=None)
-    parser.add_argument("--json-output", action="store_true", help="Output results in JSON format.")
-    args = parser.parse_args()
+    target_tx_hash = input("Enter the Bitcoin transaction hash for analysis: ").strip()
+    if not target_tx_hash:
+        print("No transaction hash entered. Exiting.")
+        exit()
 
-    target_tx_hash = args.tx_hash
-    output_json = args.json_output
-
-    # This conditional logic ensures input() is only called if running interactively AND no hash is provided
-    if not target_tx_hash and not output_json: 
-        target_tx_hash = input("Enter the Bitcoin transaction hash for analysis: ").strip()
-    
-    if not target_tx_hash: # If no hash is provided at all (even after prompt), exit.
-        if output_json: # If JSON output is expected but no hash is given
-            print(json.dumps({"status": "Failed", "error": "No transaction hash provided."}))
-        else: # For direct script execution (HTML output path)
-            print("No transaction hash entered. Exiting.")
-        sys.exit(1) # Use sys.exit(1) for consistent exit code on error
-
-
-    # These print statements are now conditional based on 'output_json'
-    # For API calls (--json-output), these will print to stderr, not stdout.
-    output_stream_main = sys.stderr if output_json else sys.stdout
-    print(f"\n[+] Starting analysis for transaction {target_tx_hash}...", file=output_stream_main)
+    print(f"\n[+] Starting analysis for transaction {target_tx_hash}...")
     
     # Fetch transaction data
-    # Pass output_json to control prints within helper functions
-    transaction_details = get_transaction_details_multi_source(target_tx_hash, output_to_stderr=output_json)
+    transaction_details = get_transaction_details_multi_source(target_tx_hash)
 
     if not transaction_details:
-        error_message = f"Failed to retrieve details for transaction {target_tx_hash}. Please check the hash and try again."
-        if output_json:
-            print(json.dumps({"status": "Failed", "error": error_message}))
-        else:
-            print(error_message)
-        sys.exit(1)
+        print(f"Failed to retrieve details for transaction {target_tx_hash}. Please check the hash and try again.")
     else:
-        # Load ransomware data once for all checks within this block
-        # Pass output_json to control prints within helper functions
-        load_local_ransomware_addresses(output_to_stderr=output_json)
-        fetch_ransomwhere_data(output_to_stderr=output_json)
+        report_filename = f"XenoByte_Transaction_Report_{target_tx_hash[:10]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
+        html_report_content = generate_transaction_report(transaction_details, target_tx_hash)
 
-        # Prepare the report data as a dictionary
-        report_data_output = {
-            "requested_input": target_tx_hash,
-            "input_category": "Transaction",
-            "crypto_type": "Bitcoin",
-            "transaction_summary": {
-                "hash": transaction_details.get('hash'),
-                "time_utc": (datetime.fromtimestamp(transaction_details['time'], timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
-                             if transaction_details.get('time') else 'N/A'),
-                "block_height": transaction_details.get('block_height', 'N/A'),
-                "transaction_fee_satoshi": transaction_details.get('fee', 0) if transaction_details.get('fee') is not None else 'N/A',
-                "transaction_fee_btc": (transaction_details.get('fee', 0) / 100_000_000.0
-                                        if transaction_details.get('fee') is not None else 'N/A'),
-                "size_bytes": transaction_details.get('size', 'N/A'),
-                "total_input_value_satoshi": (sum(inp.get('prev_out', {}).get('value', 0)
-                                            for inp in transaction_details.get('inputs', []))),
-                "total_input_value_btc": (sum(inp.get('prev_out', {}).get('value', 0)
-                                            for inp in transaction_details.get('inputs', [])) / 100_000_000.0),
-                "total_output_value_satoshi": (sum(out.get('value', 0)
-                                            for out in transaction_details.get('out', []))),
-                "total_output_value_btc": (sum(out.get('value', 0)
-                                            for out in transaction_details.get('out', [])) / 100_000_000.0)
-            },
-            "sender_wallets": [],
-            "receiver_wallets": [],
-            "disclaimer": "This data is aggregated from various public and open-source intelligence feeds. Always verify critical information from multiple trusted sources."
-        }
-
-        # Enrich sender and receiver wallet data with simulated flags and reports for JSON output
-        sender_wallets_processed = []
-        for inp in transaction_details.get('inputs', []):
-            sender_address = inp.get('prev_out', {}).get('addr')
-            amount = inp.get('prev_out', {}).get('value', 0)
-            if sender_address:
-                wallet_info = {
-                    'address': sender_address,
-                    'amount_sent_satoshi': amount,
-                    'amount_sent_btc': amount / 100_000_000.0,
-                    'inferred_type': "Personal Wallet",
-                    'reputation_flags': get_simulated_reputation_flags(sender_address),
-                    'chainabuse_reports': get_simulated_chainabuse_reports(sender_address)
-                }
-                sender_wallets_processed.append(wallet_info)
-        report_data_output["sender_wallets"] = sender_wallets_processed
-
-        receiver_wallets_processed = []
-        for out in transaction_details.get('out', []):
-            receiver_address = out.get('addr')
-            amount = out.get('value', 0)
-            if receiver_address:
-                wallet_info = {
-                    'address': receiver_address,
-                    'amount_received_satoshi': amount,
-                    'amount_received_btc': amount / 100_000_000.0,
-                    'inferred_type': "Personal Wallet",
-                    'reputation_flags': get_simulated_reputation_flags(receiver_address),
-                    'chainabuse_reports': get_simulated_chainabuse_reports(receiver_address)
-                }
-                receiver_wallets_processed.append(wallet_info)
-        report_data_output["receiver_wallets"] = receiver_wallets_processed
-
-
-        if output_json:
-            # Output JSON to stdout
-            print(json.dumps(report_data_output, indent=4))
-        else:
-            # Generate and save HTML report (original behavior)
-            report_filename = f"XenoByte_Transaction_Report_{target_tx_hash[:10]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
-            html_report_content = generate_transaction_report(transaction_details, target_tx_hash)
-
-            try:
-                with open(report_filename, "w", encoding="utf-8") as f:
-                    f.write(html_report_content)
-                print(f"\n[+] Report generated successfully: {report_filename}")
-                webbrowser.open(f"file://{os.path.abspath(report_filename)}")
-                print("\n[+] Transaction analysis complete. Report opened in browser.")
-            except Exception as e:
-                print(f"Error saving or opening report: {e}")
-
+        try:
+            with open(report_filename, "w", encoding="utf-8") as f:
+                f.write(html_report_content)
+            print(f"\n[+] Report generated successfully: {report_filename}")
+            webbrowser.open(f"file://{os.path.abspath(report_filename)}") # Automatically open the report
+        except Exception as e:
+            print(f"Error saving or opening report: {e}")

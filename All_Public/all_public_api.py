@@ -1,21 +1,29 @@
-# all_public_api.py (Refactored to expose APIRouter)
-from fastapi import APIRouter, Query, HTTPException, UploadFile, File, status
+# all_public_api.py
+from fastapi import FastAPI, Query, HTTPException, Security, UploadFile, File, status, APIRouter
+from fastapi.security.api_key import APIKeyHeader
 from typing import Dict, Any, List
+import secrets
 import sys
 import os
 import shutil
 
-# --- PATH ADJUSTMENTS (Keep these for internal imports within this module) ---
+# --- PATH ADJUSTMENTS ---
 # Get the directory where this script (all_public_api.py) is located
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Add the directories containing your utility scripts to sys.path
+# This allows importing modules like APT_Checkout, xenobyte_tracer, etc.
+# Assumes the structure:
+# All_Public/
+# ├── APT_Checkout/
+# ├── Crypto/
+# ├── Hash_Checker/
+# └── all_public_api.py
 sys.path.insert(0, os.path.join(current_dir, "APT_Checkout"))
 sys.path.insert(0, os.path.join(current_dir, "Crypto"))
 sys.path.insert(0, os.path.join(current_dir, "Hash_Checker"))
 
 # --- IMPORTS FROM YOUR SCRIPTS ---
-# Ensure all necessary imports from your core logic scripts are here
 # From APT_Checkout/Apt_Checkout.py
 try:
     from Apt_Checkout import (
@@ -23,16 +31,14 @@ try:
         query_otx_for_apt,
         get_iocs_from_github_repo,
         load_random_wallet_addresses,
-        load_mitre_attack_data, # This will be called by xenobyte_master_api's startup
+        load_mitre_attack_data,
         is_valid_ip,
         is_likely_filename,
-        RANSOMWARE_WALLETS_FILE # Ensure this is defined in Apt_Checkout
+        RANSOMWARE_WALLETS_FILE
     )
 except ImportError as e:
-    # Changed sys.exit to print to stderr and continue if possible,
-    # or rely on upstream HTTPException if a function is called and missing.
     print(f"ERROR: Could not import functions from Apt_Checkout.py: {e}", file=sys.stderr)
-    # No sys.exit(1) here, let FastAPI handle it if endpoints fail due to missing functions.
+    sys.exit(1)
 
 # From Crypto/xenobyte_tracer.py
 try:
@@ -51,30 +57,66 @@ try:
     )
 except ImportError as e:
     print(f"ERROR: Could not import functions from xenobyte_tracer.py: {e}", file=sys.stderr)
+    sys.exit(1)
 
 # From Hash_Checker/hash_checker_otx.py
 try:
     from hash_checker_otx import check_hash_reputation_otx, get_hash_type
 except ImportError as e:
     print(f"ERROR: Could not import functions from hash_checker_otx.py: {e}", file=sys.stderr)
+    sys.exit(1)
 
 # From Hash_Checker/file_hash_scanner.py
 try:
     from file_hash_scanner import calculate_file_hashes, check_hash_reputation
 except ImportError as e:
     print(f"ERROR: Could not import functions from file_hash_scanner.py: {e}", file=sys.stderr)
+    sys.exit(1)
 
 
-# --- Define the APIRouter for this module ---
-# This router will be included by the main Xenobyte API
-public_router = APIRouter(tags=["Unified Public Intelligence"])
+# --- MAIN FASTAPI APP INSTANCE ---
+app = FastAPI(
+    title="XenoByte Unified Threat Intelligence API",
+    description="A consolidated API for retrieving APT group intelligence, tracing cryptocurrency, checking file hash reputations, and scanning uploaded files.",
+    version="1.0.0"
+)
 
-# --- Endpoint Definitions (Modified to use public_router and remove Security dependency) ---
-# The Security dependency will be handled by the top-level API that includes this router.
+# --- GLOBAL API KEY CONFIGURATION ---
+API_KEY_NAME = "X-API-Key"
+api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
+GENERATED_API_KEY = secrets.token_hex(32)
 
-@public_router.get("/apt", response_model=Dict[str, Any], summary="Get APT Group Threat Intelligence")
+@app.on_event("startup")
+async def startup_event():
+    """
+    Initializes MITRE ATT&CK data and prints the generated API key on startup.
+    This runs once when the API server starts.
+    """
+    print(f"[*] Generated API Key for this session: {GENERATED_API_KEY}")
+    print("[INFO] Initializing MITRE ATT&CK data (for APT module)...")
+    if not load_mitre_attack_data():
+        print("[ERROR] Failed to load MITRE ATT&CK data. APT API responses might be incomplete.")
+
+async def get_api_key(api_key_header: str = Security(api_key_header)):
+    """
+    Dependency to validate the API key for all endpoints.
+    """
+    if api_key_header == GENERATED_API_KEY:
+        return api_key_header
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate credentials - Invalid API Key"
+        )
+
+# --- API ROUTERS FOR EACH MODULE ---
+
+# APT Threat Intelligence Router
+apt_router = APIRouter(prefix="/apt", tags=["APT Threat Intelligence"])
+
+@apt_router.get("/", response_model=Dict[str, Any], summary="Get APT Group Threat Intelligence")
 async def get_apt_data(
-    group: str = Query(..., description="The name of the APT group (e.g., APT28, Fancy Bear, Lazarus Group).")
+    group: str = Query(..., description="The name of the APT group (e.g., APT28, Fancy Bear, Lazarus Group)."),
+    api_key: str = Security(get_api_key)
 ):
     """
     Retrieves comprehensive threat intelligence for a specified APT group.
@@ -84,29 +126,31 @@ async def get_apt_data(
     - AlienVault OTX: Publicly available Indicators of Compromise (IOCs) related to the group.
     - GitHub (blackorbird/APT_REPORT): Additional IOCs from a public repository.
     - Ransomware Wallet Addresses: A demonstration list of random ransomware wallet addresses.
+
+    **Authentication:** Requires an API key passed in the `X-API-Key` header.
     """
-    print(f"\n[+] API Request received for APT group: {group} (via public_router)", file=sys.stderr)
+    print(f"\n[+] API Request received for APT group: {group}")
 
     mitre_info = get_apt_group_info_from_mitre(group)
     if not mitre_info:
-        print(f"    [-] No detailed MITRE group profile found for '{group}'.", file=sys.stderr)
+        print(f"    [-] No detailed MITRE group profile found for '{group}'.")
 
     otx_result = query_otx_for_apt(group)
     otx_error = None
     if isinstance(otx_result, dict) and otx_result.get("error"):
         otx_error = otx_result["error"]
-        print(f"    [ERROR] OTX Query failed: {otx_error}", file=sys.stderr)
+        print(f"    [ERROR] OTX Query failed: {otx_error}")
         otx_iocs = []
     else:
         otx_iocs = otx_result.get('all_extracted_iocs', [])
-        print(f"    [+] Found {len(otx_iocs)} IOCs from OTX.", file=sys.stderr)
+        print(f"    [+] Found {len(otx_iocs)} IOCs from OTX.")
 
     github_iocs = get_iocs_from_github_repo("blackorbird", "APT_REPORT", group)
-    print(f"    [+] Found {len(github_iocs)} IOCs from GitHub.", file=sys.stderr)
+    print(f"    [+] Found {len(github_iocs)} IOCs from GitHub.")
 
     ransomware_wallets = load_random_wallet_addresses(count=15)
     if not ransomware_wallets:
-        print(f"    [*] No ransomware wallet addresses loaded from '{RANSOMWARE_WALLETS_FILE}'.", file=sys.stderr)
+        print(f"    [*] No ransomware wallet addresses loaded from '{RANSOMWARE_WALLETS_FILE}'.")
 
     master_ioc_list = []
     master_ioc_list.extend(otx_iocs)
@@ -154,17 +198,23 @@ async def get_apt_data(
         "disclaimer": "This data is aggregated from various open-source intelligence feeds and MITRE ATT&CK. Always verify critical information from multiple trusted sources."
     }
 
-@public_router.get("/crypto_trace", response_model=Dict[str, Any], summary="Trace Cryptocurrency Address or Transaction")
+# Crypto Tracer Router
+crypto_router = APIRouter(prefix="/crypto", tags=["Cryptocurrency Tracer"])
+
+@crypto_router.get("/trace", response_model=Dict[str, Any], summary="Trace Cryptocurrency Address or Transaction")
 async def trace_crypto(
-    input_string: str = Query(..., description="The cryptocurrency address or transaction hash to trace.")
+    input_string: str = Query(..., description="The cryptocurrency address or transaction hash to trace."),
+    api_key: str = Security(get_api_key)
 ):
     """
     Traces a given cryptocurrency address or transaction hash and returns detailed information.
 
     This endpoint identifies the type of cryptocurrency and whether it's an address or a transaction
     hash, then fetches relevant data from various block explorers.
+
+    **Authentication:** Requires an API key passed in the `X-API-Key` header.
     """
-    print(f"\n[+] API Request received for crypto trace: {input_string} (via public_router)", file=sys.stderr)
+    print(f"\n[+] API Request received for crypto trace: {input_string}")
 
     report_data = None
     input_category = "Unknown"
@@ -306,15 +356,21 @@ async def trace_crypto(
             detail="Failed to fetch data for the given input. It might be an invalid or unsupported format, or an API issue."
         )
 
-@public_router.get("/hash/reputation", response_model=Dict[str, Any], summary="Check File Hash Reputation")
+# Hash Checker Router
+hash_checker_router = APIRouter(prefix="/hash", tags=["Hash Reputation Checker"])
+
+@hash_checker_router.get("/reputation", response_model=Dict[str, Any], summary="Check File Hash Reputation")
 async def check_hash(
-    hash_value: str = Query(..., description="The file hash (MD5, SHA1, or SHA256) to check.")
+    hash_value: str = Query(..., description="The file hash (MD5, SHA1, or SHA256) to check."),
+    api_key: str = Security(get_api_key)
 ):
     """
     Checks the reputation of a given file hash using AlienVault OTX.
     Returns detailed information about the hash, including its verdict and any associated IOCs.
+
+    **Authentication:** Requires an API key passed in the `X-API-Key` header.
     """
-    print(f"\n[+] API Request received for hash: {hash_value} (via public_router)", file=sys.stderr)
+    print(f"\n[+] API Request received for hash: {hash_value}")
 
     hash_type = get_hash_type(hash_value)
     if not hash_type:
@@ -337,16 +393,22 @@ async def check_hash(
             detail="An unexpected error occurred while processing the hash reputation check."
         )
 
-@public_router.post("/file/scan", response_model=Dict[str, Any], summary="Upload and Scan File for Reputation")
+# File Scanner Router
+file_scanner_router = APIRouter(prefix="/file", tags=["File Scanner"])
+
+@file_scanner_router.post("/scan", response_model=Dict[str, Any], summary="Upload and Scan File for Reputation")
 async def scan_file(
-    file: UploadFile = File(..., description="The file to upload and scan.")
+    file: UploadFile = File(..., description="The file to upload and scan."),
+    api_key: str = Security(get_api_key)
 ):
     """
     Accepts a file upload, calculates its MD5, SHA1, and SHA256 hashes,
     and then checks the SHA256 hash's reputation using AlienVault OTX.
     Returns the file's hashes and the threat intelligence analysis result in JSON format.
+
+    **Authentication:** Requires an API key passed in the `X-API-Key` header.
     """
-    print(f"\n[+] API Request received for file scan: {file.filename} (via public_router)", file=sys.stderr)
+    print(f"\n[+] API Request received for file scan: {file.filename}")
 
     temp_file_path = os.path.join(current_dir, "temp_uploads", file.filename)
     os.makedirs(os.path.dirname(temp_file_path), exist_ok=True) # Ensure temp_uploads directory exists
@@ -408,3 +470,9 @@ async def scan_file(
     finally:
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
+
+# --- INCLUDE ROUTERS IN THE MAIN APP ---
+app.include_router(apt_router)
+app.include_router(crypto_router)
+app.include_router(hash_checker_router)
+app.include_router(file_scanner_router)

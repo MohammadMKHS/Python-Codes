@@ -1,0 +1,302 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>XenoByte Transaction Report: 0x1b5e7141...</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+        <style>
+            :root {
+                --background-color-dark: #121212;
+                --text-color-dark: #e0e0e0;
+                --border-color-dark: #444;
+                --card-bg-dark: #1e1e1e;
+                --header-bg-dark: #333;
+                --link-color-dark: #81c784;
+                --icon-color-dark: #bdbdbd;
+
+                --background-color-light: #f5f5f5;
+                --text-color-light: #333;
+                --border-color-light: #ccc;
+                --card-bg-light: #ffffff;
+                --header-bg-light: #e0e0e0;
+                --link-color-light: #388e3c;
+                --icon-color-light: #757575;
+            }
+
+            body.dark-theme {
+                background-color: var(--background-color-dark);
+                color: var(--text-color-dark);
+            }
+
+            body.light-theme {
+                background-color: var(--background-color-light);
+                color: var(--text-color-light);
+            }
+
+            body {
+                font-family: 'Roboto', sans-serif;
+                margin: 0;
+                padding: 20px;
+                line-height: 1.6;
+            }
+
+            a {
+                color: var(--link-color-dark);
+                text-decoration: none;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+            
+            h1, h2, h3 {
+                color: var(--text-color-dark);
+            }
+            
+            .container {
+                max-width: 1200px;
+                margin: auto;
+                background: var(--card-bg-dark);
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .header {
+                background: var(--header-bg-dark);
+                padding: 15px;
+                border-radius: 8px 8px 0 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .report-info {
+                font-family: 'Share Tech Mono', monospace;
+                font-size: 0.9em;
+            }
+
+            .section {
+                border: 1px solid var(--border-color-dark);
+                padding: 15px;
+                margin-top: 20px;
+                border-radius: 8px;
+            }
+            
+            .section h2 {
+                margin-top: 0;
+                border-bottom: 2px solid var(--border-color-dark);
+                padding-bottom: 5px;
+            }
+
+            .key-value {
+                display: flex;
+                flex-wrap: wrap;
+                margin-bottom: 5px;
+            }
+
+            .key {
+                font-weight: 500;
+                min-width: 150px;
+            }
+            
+            .value {
+                word-break: break-all;
+                font-family: 'Share Tech Mono', monospace;
+                flex: 1;
+            }
+
+            .wallet-card {
+                background: var(--card-bg-dark);
+                padding: 10px;
+                border: 1px solid var(--border-color-dark);
+                border-radius: 6px;
+                margin-top: 10px;
+            }
+
+            .wallet-card h3 {
+                margin-top: 0;
+                font-size: 1.1em;
+            }
+            
+            .label {
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 0.8em;
+                font-weight: bold;
+                margin-right: 5px;
+                margin-bottom: 5px;
+            }
+
+            .label.warning {
+                background-color: #ffc107;
+                color: #212121;
+            }
+            .label.danger {
+                background-color: #f44336;
+                color: #fff;
+            }
+            .label.safe {
+                background-color: #4caf50;
+                color: #fff;
+            }
+
+            .report-card {
+                background: var(--card-bg-dark);
+                border: 1px solid var(--border-color-dark);
+                padding: 10px;
+                border-radius: 6px;
+                margin-bottom: 10px;
+            }
+            .report-card h4 {
+                margin-top: 0;
+                margin-bottom: 5px;
+            }
+
+            .mode-toggle {
+                background: var(--card-bg-dark);
+                border: 1px solid var(--border-color-dark);
+                color: var(--text-color-dark);
+                padding: 5px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 0.9em;
+            }
+            
+            .mode-toggle:hover {
+                background: var(--header-bg-dark);
+            }
+
+            @media (prefers-color-scheme: light) {
+                body {
+                    background-color: var(--background-color-light);
+                    color: var(--text-color-light);
+                }
+                h1, h2, h3 {
+                    color: var(--text-color-light);
+                }
+                .container {
+                    background: var(--card-bg-light);
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                }
+                .header {
+                    background: var(--header-bg-light);
+                }
+                a {
+                    color: var(--link-color-light);
+                }
+                .section {
+                    border: 1px solid var(--border-color-light);
+                }
+                .section h2 {
+                    border-bottom: 2px solid var(--border-color-light);
+                }
+                .wallet-card {
+                    background: var(--card-bg-light);
+                    border: 1px solid var(--border-color-light);
+                }
+                .report-card {
+                    background: var(--card-bg-light);
+                    border: 1px solid var(--border-color-light);
+                }
+                .mode-toggle {
+                    background: var(--card-bg-light);
+                    border: 1px solid var(--border-color-light);
+                    color: var(--text-color-light);
+                }
+                .mode-toggle:hover {
+                    background: var(--header-bg-light);
+                }
+            }
+        </style>
+    </head>
+    <body class="dark-theme">
+        <div class="container">
+            <div class="header">
+                <div class="report-info">
+                    <p><strong>XenoByte Transaction Report</strong></p>
+                    <p>Report Generated: 2025-09-02 02:53:50</p>
+                </div>
+                <button class="mode-toggle" id="mode-toggle-button">Light Mode</button>
+            </div>
+            
+            <div class="section">
+                <h2>Transaction Overview</h2>
+                <div class="key-value"><span class="key">Transaction Hash:</span> <span class="value">0x1b5e71412004cc38dc711919c4f307d73a64a80ef84e39db84b341f094071af0</span></div>
+                <div class="key-value"><span class="key">Block Number:</span> <span class="value">7052805</span></div>
+                <div class="key-value"><span class="key">From:</span> <span class="value"><a href="https://etherscan.io/address/0xbde430f54a63016d8a5f31f243761653728086a2" target="_blank">0xbde430f54a63016d8a5f31f243761653728086a2</a></span></div>
+                <div class="key-value"><span class="key">To:</span> <span class="value"><a href="https://etherscan.io/address/0x95f1d0c9a5aae8c25624e611ed88ab50b2ab3d70" target="_blank">0x95f1d0c9a5aae8c25624e611ed88ab50b2ab3d70</a></span></div>
+                <div class="key-value"><span class="key">Value:</span> <span class="value">2.237744114 ETH</span></div>
+                <div class="key-value"><span class="key">Gas Used:</span> <span class="value">21000</span></div>
+                <div class="key-value"><span class="key">Gas Price:</span> <span class="value">41.0 Gwei</span></div>
+                <div class="key-value"><span class="key">Nonce:</span> <span class="value">0</span></div>
+            </div>
+
+            <div class="section">
+                <h2>Sender Wallet Analysis</h2>
+                <div class="wallet-card">
+                    <h3><a href="https://etherscan.io/address/0xbde430f54a63016d8a5f31f243761653728086a2" target="_blank">0xbde430f54a63016d8a5f31f243761653728086a2</a></h3>
+                    <p><strong>Reputation:</strong></p>
+                    <span class="label danger">🚫 Reported Scam Address (Simulated)</span><span class="label danger">⚠️ Reported Phishing/Impersonation Scam</span>
+                    
+                    <h4>Chainabuse Reports:</h4>
+                    
+                    <div class="report-card">
+                        <p><strong>Type:</strong> Phishing Scam</p>
+                        <p><strong>Submitted by:</strong> Anonymous on 2022-11-25</p>
+                        <p><strong>Description:</strong> Scammer's wallet address.</p>
+                        
+                    </div>
+                    
+                    <div class="report-card">
+                        <p><strong>Type:</strong> Impersonation Scam</p>
+                        <p><strong>Submitted by:</strong> Anonymous on 2022-11-05</p>
+                        <p><strong>Description:</strong> Trust trading scam site.</p>
+                        <p><strong>Domain:</strong> <a href='https://ethpromotion.info' target='_blank'>https://ethpromotion.info</a></p>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Receiver Wallet(s) Analysis</h2>
+                
+                <div class="wallet-card">
+                    <h3><a href="https://etherscan.io/address/0x95f1d0c9a5aae8c25624e611ed88ab50b2ab3d70" target="_blank">0x95f1d0c9a5aae8c25624e611ed88ab50b2ab3d70</a></h3>
+                    <p><strong>Reputation:</strong></p>
+                    <span class="label safe">✅ Reputable Address (Simulated)</span>
+                    
+                    <h4>Chainabuse Reports:</h4>
+                    <p>No Chainabuse reports found for this address.</p>
+                </div>
+                
+            </div>
+            
+            <div class="section">
+                <h2>Internal Transactions</h2>
+                <p>No internal transactions found.</p>
+            </div>
+            
+        </div>
+        <script>
+            document.getElementById('mode-toggle-button').addEventListener('click', function() {
+                const body = document.body;
+                if (body.classList.contains('dark-theme')) {
+                    body.classList.remove('dark-theme');
+                    body.classList.add('light-theme');
+                    this.textContent = 'Dark Mode';
+                } else {
+                    body.classList.remove('light-theme');
+                    body.classList.add('dark-theme');
+                    this.textContent = 'Light Mode';
+                }
+            });
+        </script>
+    </body>
+    </html>
+    
